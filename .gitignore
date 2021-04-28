@@ -17,5 +17,8 @@
 # Temporary directory with binary file used by air.
 tmp/
 
+# Build directory
+build/
+
 # enviroment variable
 .env
