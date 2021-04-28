@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	_ "database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -10,26 +9,22 @@ import (
 	_ "github.com/go-redis/redis"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v4"
-)
-
-const (
-	hostname      = "localhost"
-	host_port     = 5432
-	username      = ""
-	password      = "" // I should somehow to hide it...
-	database_name = ""
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	pg_con_string := fmt.Sprintf("port=%d host=%s user=%s password=%s dbname=%s sslmode=disable", host_port, hostname, username, password, database_name)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	conn, err := pgx.Connect(context.Background(), pg_con_string)
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
 
+	defer conn.Close(context.Background())
 	// Create new Fiber instance
 	app := fiber.New()
 
