@@ -6,7 +6,8 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/go-redis/redis"
+	"github.com/monesonn/records.web/pkg/configs"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v4"
 	"github.com/joho/godotenv"
@@ -23,10 +24,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-
 	defer conn.Close(context.Background())
+
+	config := configs.FiberConfig()
+
 	// Create new Fiber instance
-	app := fiber.New()
+	app := fiber.New(config)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("I made a ☕ for you!")
