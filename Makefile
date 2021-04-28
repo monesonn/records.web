@@ -3,6 +3,8 @@
 APP_NAME=records-web-application
 BUILD_DIR=$(PWD)/build
 
+default: run
+
 clean:
 	rm -rf ./build
 
