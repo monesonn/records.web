@@ -1,3 +1,4 @@
+// Package routes ...
 package routes
 
 import (
@@ -12,5 +13,7 @@ func PublicRoutes(a *fiber.App) {
 		return c.SendString("root")
 	})
 	route.Get("/genres", controllers.GetGenres)
+	route.Get("/genre/:id", controllers.GetGenre)
 	route.Get("/artists", controllers.GetArtists)
+	route.Get("/artist/:id", controllers.GetArtist)
 }
