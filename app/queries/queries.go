@@ -27,8 +27,26 @@ func (q *RecordsQueries) GetGenres() ([]models.Genre, error) {
 	return genres, nil
 }
 
+func (q *RecordsQueries) GetGenre(id int) (models.Genre, error) {
+	// Define genre variable.
+	genre := models.Genre{}
+
+	// Define query string.
+	query := `SELECT * FROM genre WHERE genre_id = $1`
+
+	// Send query to database.
+	err := q.Get(&genre, query, id)
+	if err != nil {
+		// Return empty object and error.
+		return genre, err
+	}
+
+	// Return query result.
+	return genre, nil
+}
+
 func (q *RecordsQueries) GetArtists() ([]models.Artist, error) {
-	// Define review variable.
+	// Define artists variable.
 	artists := []models.Artist{}
 
 	query := `SELECT * FROM artist`
@@ -42,4 +60,22 @@ func (q *RecordsQueries) GetArtists() ([]models.Artist, error) {
 
 	// Return query result.
 	return artists, nil
+}
+
+func (q *RecordsQueries) GetArtist(id int) (models.Artist, error) {
+	// Define artist variable.
+	artist := models.Artist{}
+
+	// Define query string.
+	query := `SELECT * FROM genre WHERE genre_id = $1`
+
+	// Send query to database.
+	err := q.Get(&artist, query, id)
+	if err != nil {
+		// Return empty object and error.
+		return artist, err
+	}
+
+	// Return query result.
+	return artist, nil
 }

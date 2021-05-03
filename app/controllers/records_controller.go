@@ -2,6 +2,9 @@
 package controllers
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/monesonn/records.web/platform/database"
 )
@@ -36,6 +39,39 @@ func GetGenres(c *fiber.Ctx) error {
 	})
 }
 
+func GetGenre(c *fiber.Ctx) error {
+	// Catch genre ID from URL.
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get genre by ID.
+	genre, err := db.GetGenre(id)
+	if err != nil {
+		// Return, if book not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   fmt.Sprintf("genre with the given ID(%v) is not found.", id),
+			"genre": nil,
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error": false,
+		"msg":   nil,
+		"genre": genre,
+	})
+}
+
 func GetArtists(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
@@ -63,5 +99,38 @@ func GetArtists(c *fiber.Ctx) error {
 		"msg":     nil,
 		"count":   len(artists),
 		"artists": artists,
+	})
+}
+
+func GetArtist(c *fiber.Ctx) error {
+	// Catch artist ID from URL.
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get artist by ID.
+	artist, err := db.GetArtist(id)
+	if err != nil {
+		// Return, if book not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":  true,
+			"msg":    fmt.Sprintf("artist with the given ID(%v) is not found.", id),
+			"artist": nil,
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"artist": artist,
 	})
 }
