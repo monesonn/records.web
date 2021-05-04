@@ -9,6 +9,7 @@ import (
 func PublicRoutes(a *fiber.App) {
 	route := a.Group("")
 
+	// Routes for GET method:
 	route.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("root")
 	})
@@ -16,4 +17,10 @@ func PublicRoutes(a *fiber.App) {
 	route.Get("/genre/:id", controllers.GetGenre)
 	route.Get("/artists", controllers.GetArtists)
 	route.Get("/artist/:id", controllers.GetArtist)
+	route.Get("/records", controllers.GetRecords)
+	route.Get("/record/:id", controllers.GetRecord)
+
+	// Routes for POST method:
+	route.Post("/user/sign/up", controllers.UserSignUp) // register a new user
+	route.Post("/user/sign/in", controllers.UserSignIn) // auth
 }
