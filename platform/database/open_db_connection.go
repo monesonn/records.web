@@ -5,7 +5,8 @@ import (
 )
 
 type Queries struct {
-	*queries.RecordsQueries // load queries from model
+	*queries.UserQueries    // load queries from User model
+	*queries.RecordsQueries // load queries from Records model
 }
 
 // OpenDBConnection func for opening database connection.
@@ -16,5 +17,9 @@ func OpenDBConnection() (*Queries, error) {
 		return nil, err
 	}
 
-	return &Queries{&queries.RecordsQueries{DB: db}}, nil
+	return &Queries{
+		// Set queries from models:
+		UserQueries:    &queries.UserQueries{DB: db},    // from User model
+		RecordsQueries: &queries.RecordsQueries{DB: db}, // from Records model
+	}, nil
 }
