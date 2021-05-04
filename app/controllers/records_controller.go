@@ -134,3 +134,67 @@ func GetArtist(c *fiber.Ctx) error {
 		"artist": artist,
 	})
 }
+
+func GetRecords(c *fiber.Ctx) error {
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get all records
+	records, err := db.GetRecords()
+	if err != nil {
+		// Return, if records not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     "records were not found",
+			"count":   0,
+			"records": nil,
+			"err":     err.Error(),
+		})
+	}
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"msg":     nil,
+		"count":   len(records),
+		"records": records,
+	})
+}
+
+func GetRecord(c *fiber.Ctx) error {
+	// Catch record ID from URL.
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get record by ID.
+	record, err := db.GetRecord(id)
+	if err != nil {
+		// Return, if book not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     fmt.Sprintf("record with the given ID(%v) is not found.", id),
+			"records": nil,
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"record": record,
+	})
+}

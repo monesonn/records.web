@@ -67,7 +67,7 @@ func (q *RecordsQueries) GetArtist(id int) (models.Artist, error) {
 	artist := models.Artist{}
 
 	// Define query string.
-	query := `SELECT * FROM genre WHERE genre_id = $1`
+	query := `SELECT * FROM artist WHERE artist_id = $1`
 
 	// Send query to database.
 	err := q.Get(&artist, query, id)
@@ -78,4 +78,40 @@ func (q *RecordsQueries) GetArtist(id int) (models.Artist, error) {
 
 	// Return query result.
 	return artist, nil
+}
+
+func (q *RecordsQueries) GetRecords() ([]models.Record, error) {
+	// Define artists variable.
+	records := []models.Record{}
+
+	query := `SELECT * FROM record`
+
+	// Send query to database.
+	err := q.Select(&records, query)
+	if err != nil {
+		// Return empty object and error.
+		return records, err
+	}
+
+	// Return query result.
+	return records, nil
+}
+
+func (q *RecordsQueries) GetRecord(id int) (models.Record, error) {
+	// Define artist variable.
+	record := models.Record{}
+
+	// Define query string.
+	query := `SELECT * FROM record WHERE record_id = $1`
+
+	// Send query to database.
+	err := q.Get(&record, query, id)
+
+	if err != nil {
+		// Return empty object and error.
+		return record, err
+	}
+
+	// Return query result.
+	return record, nil
 }

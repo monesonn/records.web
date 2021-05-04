@@ -35,7 +35,7 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, error) {
 	user := models.User{}
 
 	// Define query string.
-	query := `SELECT * FROM users WHERE email = $1`
+	query := `SELECT * FROM users WHERE login = $1`
 
 	// Send query to database.
 	err := q.Get(&user, query, email)
@@ -56,7 +56,7 @@ func (q *UserQueries) CreateUser(u *models.User) error {
 	// Send query to database.
 	_, err := q.Exec(
 		query,
-		u.ID, u.CreatedAt, u.UpdatedAt, u.Email, u.PasswordHash, u.UserStatus, u.UserRole,
+		u.ID, u.Email, u.PasswordHash, u.UserRole, u.UserStatus, u.CreatedAt, u.UpdatedAt,
 	)
 	if err != nil {
 		// Return only error.
