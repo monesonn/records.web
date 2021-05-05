@@ -9,10 +9,11 @@ import (
 func PublicRoutes(a *fiber.App) {
 	route := a.Group("")
 
+	a.Static("/", "./public")
 	// Routes for GET method:
-	route.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("root")
-	})
+	// route.Get("/", func(c *fiber.Ctx) error {
+	// return c.App
+	// })
 	route.Get("/genres", controllers.GetGenres)
 	route.Get("/genre/:id", controllers.GetGenre)
 	route.Get("/artists", controllers.GetArtists)
