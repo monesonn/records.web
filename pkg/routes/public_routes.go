@@ -7,7 +7,7 @@ import (
 )
 
 func PublicRoutes(a *fiber.App) {
-	route := a.Group("")
+	route := a.Group("api")
 
 	a.Static("/", "./public")
 	// Routes for GET method:
