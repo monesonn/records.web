@@ -16,7 +16,10 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 		fmt.Fprintf(os.Stderr, "Unable to dbect to database: %v\n", err)
 		os.Exit(1)
 	}
-	//defer db.Close()
+	if err := db.Ping(); err != nil {
+		defer db.Close()
+		return nil, fmt.Errorf("error, not sent ping to database, %w", err)
+	}
 
 	return db, err
 }
