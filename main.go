@@ -26,9 +26,10 @@ func main() {
 
 	middleware.FiberMiddleware(app)
 
-	routes.PublicRoutes(app)
-	routes.NotFoundRoute(app)
 	routes.SwaggerRoute(app)
+	routes.PublicRoutes(app)
+	routes.PrivateRoutes(app)
+	routes.NotFoundRoute(app)
 
 	log.Fatal(app.Listen(":3000"))
 }
