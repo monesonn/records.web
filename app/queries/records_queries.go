@@ -45,6 +45,21 @@ func (q *RecordsQueries) GetGenre(id int) (models.Genre, error) {
 	return genre, nil
 }
 
+func (q *RecordsQueries) CreateGenre(g *models.Genre) error {
+	// Define query string.
+	query := `INSERT INTO genre VALUES ($1, $2)`
+
+	// Send query to database.
+	_, err := q.Exec(query, g.GenreID, g.Name)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
+
 func (q *RecordsQueries) GetArtists() ([]models.Artist, error) {
 	// Define artists variable.
 	artists := []models.Artist{}
@@ -78,6 +93,21 @@ func (q *RecordsQueries) GetArtist(id int) (models.Artist, error) {
 
 	// Return query result.
 	return artist, nil
+}
+
+func (q *RecordsQueries) CreateArtist(a *models.Artist) error {
+	// Define query string.
+	query := `INSERT INTO artist VALUES ($1, $2)`
+
+	// Send query to database.
+	_, err := q.Exec(query, a.ArtistID, a.Name)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
 }
 
 func (q *RecordsQueries) GetRecords() ([]models.Record, error) {
@@ -114,4 +144,19 @@ func (q *RecordsQueries) GetRecord(id int) (models.Record, error) {
 
 	// Return query result.
 	return record, nil
+}
+
+func (q *RecordsQueries) CreateRecord(r *models.Record) error {
+	// Define query string.
+	query := `INSERT INTO record VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
+	// Send query to database.
+	_, err := q.Exec(query, r.RecordID, r.ArtistID, r.Title, r.Year, r.Country, r.GenreID, r.LabelID, r.Description)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
 }
