@@ -3,11 +3,11 @@ package repository
 
 const (
 	// AdminRoleName const for admin role.
-	AdminRoleName string = "admin"
+	AdminRoleName string = "Admin"
 
 	// ModeratorRoleName const for moderator role.
-	ModeratorRoleName string = "moderator"
+	ModeratorRoleName string = "Moderator"
 
 	// UserRoleName const for user role.
-	UserRoleName string = "user"
+	UserRoleName string = "Client"
 )

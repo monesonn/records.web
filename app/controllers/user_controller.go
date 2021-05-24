@@ -63,6 +63,7 @@ func UserSignUp(c *fiber.Ctx) error {
 	user.ID = uuid.New()
 	user.CreatedAt = time.Now()
 	user.Email = signUp.Email
+	user.Username = signUp.Username
 	user.PasswordHash = utils.GeneratePassword(signUp.Password)
 	user.UserStatus = true // false == blocked, true == active
 	user.UserRole = role
