@@ -12,15 +12,17 @@ func PublicRoutes(a *fiber.App) {
 	a.Static("/", "./public")
 	// Routes for GET method:
 	// route.Get("/", func(c *fiber.Ctx) error {
-	// return c.App
+	// a.Static("/", "./public")
 	// })
-	route.Get("/genres", controllers.GetGenres)
+	route.Get("/genre", controllers.GetGenres)
 	route.Get("/genre/:id", controllers.GetGenre)
-	route.Get("/artists", controllers.GetArtists)
+	route.Get("/artist", controllers.GetArtists)
 	route.Get("/artist/:id", controllers.GetArtist)
-	route.Get("/records", controllers.GetRecords)
+	route.Get("/record", controllers.GetRecords)
 	route.Get("/record/:id", controllers.GetRecord)
-
+	// route.Get("/record/artist/:artist", controllers.GetRecordArgs)
+	route.Get("/record/artist/:artist", controllers.GetRecordArgs)
+	route.Get("/record/artist/:artist/genre/:genre", controllers.GetRecordArgs)
 	// Routes for POST method:
 	route.Post("/user/sign/up", controllers.UserSignUp) // register a new user
 	route.Post("/user/sign/in", controllers.UserSignIn) // auth
