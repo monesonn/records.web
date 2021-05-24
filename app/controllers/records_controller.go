@@ -337,6 +337,49 @@ func GetRecord(c *fiber.Ctx) error {
 	})
 }
 
+func GetRecordArgs(c *fiber.Ctx) error {
+	// Catch record ID from URL.
+	artist, _ := strconv.Atoi(c.Params("artist"))
+	genre, _ := strconv.Atoi(c.Params("genre"))
+
+	println(artist)
+	println(genre)
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get record by ID.
+	record := []models.Record{}
+	if genre == 0 {
+		record, err = db.GetRecordArgs(artist)
+	} else {
+		record, err = db.GetRecordArgs(artist, genre)
+	}
+
+	if err != nil {
+		// Return, if record not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     fmt.Sprintf("record with the given Artist(%v), Genre(%v) is not found.", artist, genre),
+			"records": nil,
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"record": record,
+	})
+}
+
 // CreateRecord func for creates a new record.
 // @Summary create a new record
 // @Tags Record

@@ -140,7 +140,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	}
 
 	// Get role credentials from founded user.
-	//credentials, err := utils.GetCredentialsByRole(foundedUser.UserRole)
+	credentials, err := utils.GetCredentialsByRole(foundedUser.UserRole)
 	if err != nil {
 		// Return status 400 and error message.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -150,6 +150,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	}
 
 	// Generate a new pair of access and refresh tokens.
+	tokens, err := utils.GenerateNewTokens(foundedUser.ID.String(), credentials)
 	if err != nil {
 		// Return status 500 and token generation error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -159,12 +160,16 @@ func UserSignIn(c *fiber.Ctx) error {
 	}
 
 	// Define user ID.
-	//userID := foundedUser.ID.String()
+	// userID := foundedUser.ID.String()
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error": false,
-		"msg":   "You'are logined",
+		"msg":   nil,
+		"tokens": fiber.Map{
+			"access":  tokens.Access,
+			"refresh": tokens.Refresh,
+		},
 	})
 }
 

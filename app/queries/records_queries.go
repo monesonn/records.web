@@ -146,6 +146,44 @@ func (q *RecordsQueries) GetRecord(id int) (models.Record, error) {
 	return record, nil
 }
 
+func (q *RecordsQueries) GetRecordArgs(arg ...interface{}) ([]models.Record, error) {
+	// Define artist variable.
+	records := []models.Record{}
+
+	// Define query string.
+	query := `SELECT * FROM record WHERE `
+
+	var err error
+	var artist, genre int
+	switch len(arg) {
+	case 1:
+		artist = arg[0].(int)
+		query += `artist_id=$1 `
+		err = q.Select(&records, query, artist)
+		break
+	case 2:
+		artist = arg[0].(int)
+		genre = arg[1].(int)
+		println(artist, genre)
+		query += `artist_id=$1 and genre_id=$2 `
+		err = q.Select(&records, query, artist, genre)
+		break
+	default:
+		break
+	}
+
+	// println(query)
+	// Send query to database.
+
+	if err != nil {
+		// Return empty object and error.
+		return records, err
+	}
+
+	// Return query result.
+	return records, nil
+}
+
 func (q *RecordsQueries) CreateRecord(r *models.Record) error {
 	// Define query string.
 	query := `INSERT INTO record VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
