@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/monesonn/records.web/app/models"
@@ -126,7 +127,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		// Return, if user not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": true,
-			"msg":   "user with the given email is not found",
+			"msg":   fmt.Sprintf("User with the given email %s is not found.", signIn.Email),
 		})
 	}
 
