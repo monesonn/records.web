@@ -337,13 +337,16 @@ func GetRecord(c *fiber.Ctx) error {
 	})
 }
 
-func GetRecordArgs(c *fiber.Ctx) error {
-	// Catch record ID from URL.
-	artist, _ := strconv.Atoi(c.Params("artist"))
-	genre, _ := strconv.Atoi(c.Params("genre"))
-
-	println(artist)
-	println(genre)
+func GetRecordURL(c *fiber.Ctx) error {
+	// Catch records params from URL.
+	param := map[string]string{
+		"record_id": c.Query("id"),
+		"artist_id": c.Query("artist"),
+		"genre_id":  c.Query("genre"),
+		"year_":     c.Query("year"),
+		"title":     c.Query("title"),
+		"label":     c.Query("label"),
+	}
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
@@ -357,17 +360,14 @@ func GetRecordArgs(c *fiber.Ctx) error {
 
 	// Get record by ID.
 	record := []models.Record{}
-	if genre == 0 {
-		record, err = db.GetRecordArgs(artist)
-	} else {
-		record, err = db.GetRecordArgs(artist, genre)
-	}
+
+	record, err = db.GetRecordURL(param)
 
 	if err != nil {
 		// Return, if record not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   true,
-			"msg":     fmt.Sprintf("record with the given Artist(%v), Genre(%v) is not found.", artist, genre),
+			"msg":     fmt.Sprintf("Record with the given params is not found."),
 			"records": nil,
 		})
 	}

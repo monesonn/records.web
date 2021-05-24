@@ -2,6 +2,9 @@
 package queries
 
 import (
+	"fmt"
+	"regexp"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/monesonn/records.web/app/models"
 )
@@ -128,7 +131,7 @@ func (q *RecordsQueries) GetRecords() ([]models.Record, error) {
 }
 
 func (q *RecordsQueries) GetRecord(id int) (models.Record, error) {
-	// Define artist variable.
+	// Define record variable.
 	record := models.Record{}
 
 	// Define query string.
@@ -146,34 +149,28 @@ func (q *RecordsQueries) GetRecord(id int) (models.Record, error) {
 	return record, nil
 }
 
-func (q *RecordsQueries) GetRecordArgs(arg ...interface{}) ([]models.Record, error) {
-	// Define artist variable.
+func (q *RecordsQueries) GetRecordURL(param map[string]string) ([]models.Record, error) {
+	// Define records variable.
 	records := []models.Record{}
 
-	// Define query string.
+	// Define base of SQL query string.
 	query := `SELECT * FROM record WHERE `
 
-	var err error
-	var artist, genre int
-	switch len(arg) {
-	case 1:
-		artist = arg[0].(int)
-		query += `artist_id=$1 `
-		err = q.Select(&records, query, artist)
-		break
-	case 2:
-		artist = arg[0].(int)
-		genre = arg[1].(int)
-		println(artist, genre)
-		query += `artist_id=$1 and genre_id=$2 `
-		err = q.Select(&records, query, artist, genre)
-		break
-	default:
-		break
+	// Go through map & add param to SQL query if not empty
+	for k, v := range param {
+		if len(v) != 0 {
+			query += fmt.Sprintf("%v in (%v) and ", k, v)
+		}
 	}
 
-	// println(query)
+	// So, as it not regular task
+	// It's have kinda bad implementation, this 2 lines
+	// Delete last 'and' in SQL query
+	re, _ := regexp.Compile(`\sand\s$`)
+	query = re.ReplaceAllString(query, "")
+
 	// Send query to database.
+	err := q.Select(&records, query)
 
 	if err != nil {
 		// Return empty object and error.
