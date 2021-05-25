@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
+	"os"
 
 	"github.com/monesonn/records.web/pkg/configs"
 	"github.com/monesonn/records.web/pkg/middleware"
 	"github.com/monesonn/records.web/pkg/routes"
+	"github.com/monesonn/records.web/pkg/utils"
 	_ "github.com/monesonn/records.web/platform/database"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-// @title API
+// @title API for Records.web
 // @version 1.0
 // @description This is an auto-generated API Docs.
 // @termsOfService http://swagger.io/terms/
@@ -31,5 +32,12 @@ func main() {
 	routes.PrivateRoutes(app)
 	routes.NotFoundRoute(app)
 
-	log.Fatal(app.Listen(":3000"))
+	// log.Fatal(app.Listen(os.Getenv("SERVER_PORT")))
+
+	// Start server (with or without graceful shutdown).
+	if os.Getenv("STAGE_STATUS") == "dev" {
+		utils.StartServer(app)
+	} else {
+		utils.StartServerWithGracefulShutdown(app)
+	}
 }
