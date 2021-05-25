@@ -1,17 +1,29 @@
 package controllers
 
 import (
-	"fmt"
+	"context"
 	"time"
 
 	"github.com/monesonn/records.web/app/models"
 	"github.com/monesonn/records.web/pkg/utils"
+	"github.com/monesonn/records.web/platform/cache"
 	"github.com/monesonn/records.web/platform/database"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
+// UserSignUp method to create a new user.
+// @Description Create a new user.
+// @Summary create a new user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Param user_role body string true "User role"
+// @Success 200 {object} models.User
+// @Router /api/user/sign/up [post]
 func UserSignUp(c *fiber.Ctx) error {
 	// Create a new user auth struct.
 	signUp := &models.SignUp{}
@@ -98,6 +110,16 @@ func UserSignUp(c *fiber.Ctx) error {
 	})
 }
 
+// UserSignIn method to auth user and return access and refresh tokens.
+// @Description Auth user and return access and refresh token.
+// @Summary auth user and return access and refresh token
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param email body string true "User Email"
+// @Param password body string true "User Password"
+// @Success 200 {string} status "ok"
+// @Router /api/user/sign/in [post]
 func UserSignIn(c *fiber.Ctx) error {
 	// Create a new user auth struct.
 	signIn := &models.SignIn{}
@@ -127,7 +149,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		// Return, if user not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": true,
-			"msg":   fmt.Sprintf("User with the given email %s is not found.", signIn.Email),
+			"msg":   "User with the given email is not found",
 		})
 	}
 
@@ -137,7 +159,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		// Return, if password is not compare to stored in database.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   "wrong user email address or password",
+			"msg":   "Wrong user email address or password",
 		})
 	}
 
@@ -162,7 +184,27 @@ func UserSignIn(c *fiber.Ctx) error {
 	}
 
 	// Define user ID.
-	// userID := foundedUser.ID.String()
+	userID := foundedUser.ID.String()
+
+	// Create a new Redis connection.
+	connRedis, err := cache.RedisConnection()
+	if err != nil {
+		// Return status 500 and Redis connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Save refresh token to Redis.
+	errSaveToRedis := connRedis.Set(context.Background(), userID, tokens.Refresh, 0).Err()
+	if errSaveToRedis != nil {
+		// Return status 500 and Redis connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
@@ -175,7 +217,49 @@ func UserSignIn(c *fiber.Ctx) error {
 	})
 }
 
+// UserSignOut method to de-authorize user and delete refresh token from Redis.
+// @Description De-authorize user and delete refresh token from Redis.
+// @Summary de-authorize user and delete refresh token from Redis
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 204 {string} status "ok"
+// @Security ApiKeyAuth
+// @Router /api/user/sign/out [post]
 func UserSignOut(c *fiber.Ctx) error {
 	// Get claims from JWT.
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Define user ID.
+	userID := claims.UserID.String()
+
+	// Create a new Redis connection.
+	connRedis, err := cache.RedisConnection()
+	if err != nil {
+		// Return status 500 and Redis connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Save refresh token to Redis.
+	errDelFromRedis := connRedis.Del(context.Background(), userID).Err()
+	if errDelFromRedis != nil {
+		// Return status 500 and Redis deletion error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   errDelFromRedis.Error(),
+		})
+	}
+
+	// Return status 204 no content.
 	return c.SendStatus(fiber.StatusNoContent)
 }

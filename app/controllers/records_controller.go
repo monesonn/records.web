@@ -445,3 +445,77 @@ func CreateRecord(c *fiber.Ctx) error {
 		"record": record,
 	})
 }
+
+func GetProducts(c *fiber.Ctx) error {
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get all genres.
+	products, err := db.GetProducts()
+	if err != nil {
+		// Return, if genres not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":    true,
+			"msg":      "Products were not found",
+			"count":    0,
+			"products": nil,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"error":    false,
+		"msg":      nil,
+		"count":    len(products),
+		"products": products,
+	})
+}
+
+func GetProductURL(c *fiber.Ctx) error {
+	// Catch records params from URL.
+	param := map[string]string{
+		"product_id":  c.Query("id"),
+		"record_id":   c.Query("record"),
+		"medium_type": c.Query("type"),
+		"price":       c.Query("price"),
+		"quantity":    c.Query("quantity"),
+	}
+
+	println(param["medium_type"])
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Get record by ID.
+	product := []models.Product{}
+
+	product, err = db.GetProductURL(param)
+
+	if err != nil {
+		// Return, if record not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     fmt.Sprintf("Product with the given params is not found."),
+			"product": nil,
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"msg":     nil,
+		"product": product,
+	})
+}
