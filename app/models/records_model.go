@@ -25,3 +25,11 @@ type Record struct {
 	LabelID     sql.NullInt32  `db:"label_id" json:"label_id"`
 	Description sql.NullString `db:"description" json:"description"`
 }
+
+type Product struct {
+	ProductID  int    `db:"product_id" json:"product_id"`
+	RecordID   int    `db:"record_id" json:"record_id"`
+	MediumType string `db:"medium_type" json:"type"`
+	Price      int    `db:"price" json:"price"`
+	Quantity   int    `db:"quantity" json:"quantity"`
+}
