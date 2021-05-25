@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/monesonn/records.web/app/models"
 )
@@ -11,7 +12,7 @@ type UserQueries struct {
 }
 
 // GetUserByID query for getting one User by given ID.
-func (q *UserQueries) GetUserByID(id int) (models.User, error) {
+func (q *UserQueries) GetUserByID(id uuid.UUID) (models.User, error) {
 	// Define User variable.
 	user := models.User{}
 

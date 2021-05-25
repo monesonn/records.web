@@ -195,3 +195,57 @@ func (q *RecordsQueries) CreateRecord(r *models.Record) error {
 	// This query returns nothing.
 	return nil
 }
+
+func (q *RecordsQueries) GetProducts() ([]models.Product, error) {
+	// Define review variable.
+	products := []models.Product{}
+
+	query := `SELECT * FROM products`
+
+	// Send query to database.
+	err := q.Select(&products, query)
+	if err != nil {
+		// Return empty object and error.
+		return products, err
+	}
+
+	// Return query result.
+	return products, nil
+}
+
+func (q *RecordsQueries) GetProductURL(param map[string]string) ([]models.Product, error) {
+	// Define records variable.
+	product := []models.Product{}
+
+	// Define base of SQL query string.
+	query := `SELECT * FROM products WHERE `
+
+	// Go through map & add param to SQL query if not empty
+	for k, v := range param {
+		if len(v) != 0 {
+			if k == "medium_type" {
+				re, _ := regexp.Compile(`,`)
+				v = re.ReplaceAllString(v, "','")
+				query += fmt.Sprintf("%v in ('%v') and ", k, v)
+			} else {
+				query += fmt.Sprintf("%v in (%v) and ", k, v)
+
+			}
+		}
+	}
+
+	re, _ := regexp.Compile(`\sand\s$`)
+	query = re.ReplaceAllString(query, "")
+
+	println(query)
+	// Send query to database.
+	err := q.Select(&product, query)
+
+	if err != nil {
+		// Return empty object and error.
+		return product, err
+	}
+
+	// Return query result.
+	return product, nil
+}
