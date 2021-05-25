@@ -9,4 +9,6 @@ const (
 
 	// RecordCreateCredential const for delete record.
 	RecordDeleteCredential string = "record:delete"
+
+	ClientGetCredential string = "client:get"
 )

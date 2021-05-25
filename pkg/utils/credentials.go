@@ -16,6 +16,7 @@ func GetCredentialsByRole(role string) ([]string, error) {
 	case repository.AdminRoleName:
 		// Admin credentials (all access).
 		credentials = []string{
+			repository.ClientGetCredential,
 			repository.RecordCreateCredential,
 			repository.RecordUpdateCredential,
 			repository.RecordDeleteCredential,
