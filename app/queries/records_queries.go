@@ -249,3 +249,22 @@ func (q *RecordsQueries) GetProductURL(param map[string]string) ([]models.Produc
 	// Return query result.
 	return product, nil
 }
+
+func (q *RecordsQueries) GetProductView() ([]models.ProductView, error) {
+	// Define record variable.
+	product := []models.ProductView{}
+
+	// Define query string.
+	query := `SELECT * FROM records_view`
+
+	// Send query to database.
+	err := q.Select(&product, query)
+
+	if err != nil {
+		// Return empty object and error.
+		return product, err
+	}
+
+	// Return query result.
+	return product, nil
+}

@@ -1,11 +1,78 @@
 basePath: /api
 definitions:
+  models.Artist:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   models.Genre:
     properties:
       id:
         type: integer
       name:
         type: string
+    type: object
+  models.Record:
+    properties:
+      artist_id:
+        type: integer
+      country:
+        $ref: '#/definitions/sql.NullString'
+      description:
+        $ref: '#/definitions/sql.NullString'
+      genre_id:
+        type: integer
+      label_id:
+        $ref: '#/definitions/sql.NullInt32'
+      record_id:
+        type: integer
+      title:
+        type: string
+      year:
+        $ref: '#/definitions/sql.NullInt32'
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password_hash:
+        type: string
+      updated_at:
+        type: string
+      user_role:
+        type: string
+      user_status:
+        type: boolean
+      username:
+        type: string
+    required:
+    - email
+    - id
+    - password_hash
+    - user_role
+    - username
+    type: object
+  sql.NullInt32:
+    properties:
+      int32:
+        type: integer
+      valid:
+        description: Valid is true if Int32 is not NULL
+        type: boolean
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
     type: object
 info:
   contact: {}
@@ -14,6 +81,101 @@ info:
   title: API
   version: "1.0"
 paths:
+  /api/user/sign/in:
+    post:
+      consumes:
+      - application/json
+      description: Auth user and return access and refresh token.
+      parameters:
+      - description: User Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: User Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: auth user and return access and refresh token
+      tags:
+      - User
+  /api/user/sign/out:
+    post:
+      consumes:
+      - application/json
+      description: De-authorize user and delete refresh token from Redis.
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: de-authorize user and delete refresh token from Redis
+      tags:
+      - User
+  /api/user/sign/up:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user.
+      parameters:
+      - description: Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: User role
+        in: body
+        name: user_role
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: create a new user
+      tags:
+      - User
+  /artist:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Artist'
+      security:
+      - ApiKeyAuth: []
+      summary: create a new artist
+      tags:
+      - Artist
   /genre:
     post:
       consumes:
@@ -66,4 +228,44 @@ paths:
       summary: get all exists genres
       tags:
       - Genre
+  /record:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Record'
+      security:
+      - ApiKeyAuth: []
+      summary: create a new record
+      tags:
+      - Record
+  /v1/token/renew:
+    post:
+      consumes:
+      - application/json
+      description: Renew access and refresh tokens.
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: renew access and refresh tokens
+      tags:
+      - Token
 swagger: "2.0"

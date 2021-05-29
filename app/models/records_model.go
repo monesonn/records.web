@@ -24,6 +24,7 @@ type Record struct {
 	GenreID     int            `db:"genre_id" json:"genre_id"`
 	LabelID     sql.NullInt32  `db:"label_id" json:"label_id"`
 	Description sql.NullString `db:"description" json:"description"`
+	Cover       sql.NullString `db:"cover" json:"cover"`
 }
 
 type Product struct {
@@ -32,4 +33,14 @@ type Product struct {
 	MediumType string `db:"medium_type" json:"type"`
 	Price      int    `db:"price" json:"price"`
 	Quantity   int    `db:"quantity" json:"quantity"`
+}
+
+type ProductView struct {
+	ID     int    `db:"id" json:"id"`
+	Artist string `db:"artist" json:"artist"`
+	Album  string `db:"album" json:"album"`
+	Genre  string `db:"genre" json:"genre"`
+	Cover  string `db:"cover" json:"cover"`
+	Price  string `db:"price" json:"price"`
+	Type   string `db:"type" json:"type"`
 }

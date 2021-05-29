@@ -7,21 +7,31 @@ import (
 )
 
 func PublicRoutes(a *fiber.App) {
-	route := a.Group("api")
+	api := a.Group("api")
 
 	a.Static("/", "./public")
 
+	a.Get("/", func(c *fiber.Ctx) error {
+		return c.SendFile("./views/index.html")
+	})
+
 	// Routes for GET method:
-	route.Get("/genres", controllers.GetGenres)
-	route.Get("/genre/:id", controllers.GetGenre)
-	route.Get("/artists", controllers.GetArtists)
-	route.Get("/artist/:id", controllers.GetArtist)
-	route.Get("/record", controllers.GetRecordURL)
-	route.Get("/records", controllers.GetRecords)
-	route.Get("/record/:id", controllers.GetRecord)
-	route.Get("/products", controllers.GetProducts)
-	route.Get("/product", controllers.GetProductURL)
+	api.Get("/genres", controllers.GetGenres)
+	api.Get("/genre/:id", controllers.GetGenre)
+	api.Get("/artists", controllers.GetArtists)
+	api.Get("/artist/:id", controllers.GetArtist)
+	api.Get("/record", controllers.GetRecordURL)
+	api.Get("/records", controllers.GetRecords)
+	api.Get("/record/:id", controllers.GetRecord)
+	api.Get("/products", controllers.GetProducts)
+	api.Get("/product", controllers.GetProductURL)
 	// Routes for POST method:
-	route.Post("/user/sign/up", controllers.UserSignUp) // register a new user
-	route.Post("/user/sign/in", controllers.UserSignIn) // auth
+	api.Post("/user/sign/up", controllers.UserSignUp) // register a new user
+	api.Post("/user/sign/in", controllers.UserSignIn) // auth
+
+	static := a.Group("")
+
+	// a.Static("/explore", "./public")
+
+	static.Get("/explore", controllers.RenderProducts)
 }

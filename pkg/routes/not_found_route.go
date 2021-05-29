@@ -6,7 +6,7 @@ import "github.com/gofiber/fiber/v2"
 func NotFoundRoute(a *fiber.App) {
 	a.Use(func(c *fiber.Ctx) error {
 		// a.Static("404", "./public/routes/404")
-		c.SendFile("./public/routes/404/index.html")
+		c.SendFile("./views/404/index.html")
 		return c.SendStatus(404)
 	})
 }
