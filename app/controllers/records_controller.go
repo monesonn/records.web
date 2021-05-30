@@ -84,8 +84,6 @@ func GetGenre(c *fiber.Ctx) error {
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
 		"genre": genre,
 	})
 }
@@ -416,9 +414,9 @@ func CreateRecord(c *fiber.Ctx) error {
 
 	// Set initialized default data for record:
 	record.Country = sql.NullString{}
-	record.Description = sql.NullString{}
+	// record.Description = sql.NullString{}
 	record.LabelID = sql.NullInt32{}
-	record.Year = sql.NullInt32{}
+	// record.Year = sql.NullInt32{}
 
 	// Validate genre fields.
 	if err := validate.Struct(record); err != nil {
@@ -543,7 +541,7 @@ func RenderProducts(c *fiber.Ctx) error {
 			"err":     err.Error(),
 		})
 	}
-	return c.Render("./views/explore.html", fiber.Map{
+	return c.Render("explore", fiber.Map{
 		"error":   false,
 		"msg":     nil,
 		"count":   len(product),

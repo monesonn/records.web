@@ -196,11 +196,11 @@ func (q *RecordsQueries) CreateRecord(r *models.Record) error {
 	return nil
 }
 
-func (q *RecordsQueries) GetProducts() ([]models.Product, error) {
+func (q *RecordsQueries) GetProducts() ([]models.ProductView, error) {
 	// Define review variable.
-	products := []models.Product{}
+	products := []models.ProductView{}
 
-	query := `SELECT * FROM products`
+	query := `SELECT * FROM records_view`
 
 	// Send query to database.
 	err := q.Select(&products, query)

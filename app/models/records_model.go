@@ -19,12 +19,12 @@ type Record struct {
 	RecordID    int            `db:"record_id" json:"record_id"`
 	ArtistID    int            `db:"artist_id" json:"artist_id"`
 	Title       string         `db:"title" json:"title"`
-	Year        sql.NullInt32  `db:"year_" json:"year"`
+	Year        int            `db:"year_" json:"year"`
 	Country     sql.NullString `db:"country" json:"country"`
 	GenreID     int            `db:"genre_id" json:"genre_id"`
 	LabelID     sql.NullInt32  `db:"label_id" json:"label_id"`
-	Description sql.NullString `db:"description" json:"description"`
-	Cover       sql.NullString `db:"cover" json:"cover"`
+	Description string         `db:"description" json:"description"`
+	Cover       string         `db:"cover" json:"cover"`
 }
 
 type Product struct {
@@ -36,11 +36,13 @@ type Product struct {
 }
 
 type ProductView struct {
-	ID     int    `db:"id" json:"id"`
-	Artist string `db:"artist" json:"artist"`
-	Album  string `db:"album" json:"album"`
-	Genre  string `db:"genre" json:"genre"`
-	Cover  string `db:"cover" json:"cover"`
-	Price  string `db:"price" json:"price"`
-	Type   string `db:"type" json:"type"`
+	ID          int    `db:"id" json:"id"`
+	Album       string `db:"album" json:"name"`
+	Artist      string `db:"artist" json:"artist"`
+	Description string `db:"description" json:"desc"`
+	Price       int    `db:"price" json:"cost"`
+	Genre       string `db:"genre" json:"genre"`
+	Cover       string `db:"cover" json:"img"`
+	Year        string `db:"year" json:"date"`
+	// Type        string `db:"type" json:"type"`
 }
