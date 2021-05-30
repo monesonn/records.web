@@ -29,9 +29,5 @@ func PublicRoutes(a *fiber.App) {
 	api.Post("/user/sign/up", controllers.UserSignUp) // register a new user
 	api.Post("/user/sign/in", controllers.UserSignIn) // auth
 
-	static := a.Group("")
-
-	// a.Static("/explore", "./public")
-
-	static.Get("/explore", controllers.RenderProducts)
+	a.Get("/explore", controllers.RenderProducts)
 }
