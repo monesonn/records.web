@@ -308,8 +308,14 @@ h3 {
 .new-item:hover .product-view-button {
   opacity: 1;
 }
+.new-item:hover .product-buy-button {
+  opacity: 1;
+}
 .new-item:hover .new-item-info p,
 .new-item:hover .product-view-button p {
+  top: 50%;
+}
+.new-item:hover .product-buy-button p {
   top: 50%;
 }
 .new-item-info {
@@ -364,14 +370,22 @@ h3 {
 }
 .product-view-button {
   position: absolute;
-  top: ;
-  left: ;
   right: 10px;
   bottom: 10px;
   padding: 6px 12px;
   background-color: #fff;
   box-shadow: 0 1px 8px -1px rgba(0, 0, 0, 0.4);
   opacity: 0;
+  cursor: pointer;
+}
+.product-buy-button {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 6px 12px;
+  background-color: red;
+  box-shadow: 0 1px 8px -1px rgba(0, 0, 0, 0.4);
+  opacity: 1;
   cursor: pointer;
 }
 .product-info {
@@ -507,4 +521,38 @@ h3 {
     opacity: 1;
     top: 0;
   }
+}
+
+/* .cart { */
+/*   position: fixed; */
+/*   top: 0; */
+/*   left: ; */
+/*   right: 0; */
+/*   bottom: 0; */
+/*   width: 300px; */
+/*   background-color: #e6e6e6; */
+/*   text-align: center; */
+/*   padding: 20px; */
+/* } */
+
+.cart {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: ;
+  right: -350px;
+  bottom: 0;
+  width: 350px;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f4f4f4;
+  opacity: 0.5;
+  box-shadow: 0 1px 10px -1px rgba(0, 0, 0, 0.4);
+  transition: 0.5s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.cart.active {
+  right: 0;
+}
+.cart .section-nav {
+  margin-bottom: 0;
 }

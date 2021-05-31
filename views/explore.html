@@ -27,15 +27,15 @@
             </div>
         </div>
         <h2>Профіль</h2>
-        <h3>Ім'я:</h3>
-        <h3>Прізвище:</h3>
+        <h4>Ім'я:</h4>
+        <h4>Прізвище:</h4>
     </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
         <div :class="['rela-block', 'nav-bar']">
           <div class="rela-block gutter-container inner-nav-container">
             <div :class="['nav-flip', 'top', searchOpen?'active':'']">
-              <div class="abs-center logo link">платівки.</div>
+              <div class="abs-center logo link">платівки.ua</div>
               <div
                 :class="['left', 'ui-icon', 'menu-button', menuOpen?'active':'']"
                 @click="menuOpen = !menuOpen"
@@ -76,6 +76,10 @@
             </div>
           </div>
         </div>
+        <!-- <div :class=['cartOpen']> -->
+        <div :class="['cart', cartOpen?'active':'']">
+            <h3>Візок</h3>
+        </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">
             <div class="rela-block section-nav">
@@ -107,7 +111,7 @@
                     <p class="abs-center">{{ ni.name }}<br />{{ ni.artist }}</p>
                   </div>
                   <div class="product-view-button" @click="viewProduct(ni.id)">
-                    оглянути
+                    огляд
                   </div>
                 </div>
               </div>
@@ -127,7 +131,6 @@
                 <select>
                 <option
                   v-for="c in genre"
-                  :class="[currentGenre===c?'active':'']"
                   @click="currentGenre = c; updateFilteredProducts()"
                 >
                   {{ c }}

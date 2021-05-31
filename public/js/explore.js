@@ -16,7 +16,9 @@
 Vue.component("productComp", {
   template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
                             <div class="rela-block product-pic" :style="{'background': 'url('+info.img+') center no-repeat'}">
-                                <div class="product-view-button" @click="view(info.id)">оглянути</div>
+                            <div class="product-view-button" @click="view(info.id)">огляд</div>
+                            <div class="product-buy-button" @click="addItem(info)">cart</div>
+
                             </div>
                             <div class="rela-block product-info">
                                 <div class="rela-block">
@@ -45,6 +47,10 @@ Vue.component("productComp", {
     view: function (id) {
       app.viewProduct(id);
     },
+    addItem: function (product) {
+      app.cart.push(product);
+      console.log(app.cart);
+    },
   },
 });
 
@@ -69,6 +75,7 @@ var app = new Vue({
     genre: ["Усі"],
     currentGenre: "Усі",
     title: "",
+    cart: [],
   },
   watch: {
     searchInput: function () {
