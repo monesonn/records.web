@@ -3,21 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Пошук</title>
+    <title>Платівки</title>
     <link rel="icon" type="image/ico" href="/favicon/vinyl.ico" />
     <link
       href="https://fonts.googleapis.com/css?family=Comfortaa|Open+Sans"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all" />
-    <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css"> -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/fontawesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/explore.css" type="text/css" media="all" />
   </head>
   <body>
-    <!-- FONTS -->
-    <!-- PAGE STUFF -->
     <div id="app">
       <div class="menu">
-        <p class="rela-block">меню</p>
+        <div class="avatar-upload">
+            <div class="avatar-edit">
+                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+                <label for="imageUpload"></label>
+            </div>
+            <div class="avatar-preview">
+                <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);">
+            </div>
+        </div>
+        <h2>Профіль</h2>
+        <h3>Ім'я:</h3>
+        <h3>Прізвище:</h3>
+    </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
         <div :class="['rela-block', 'nav-bar']">
@@ -95,7 +107,7 @@
                     <p class="abs-center">{{ ni.name }}<br />{{ ni.artist }}</p>
                   </div>
                   <div class="product-view-button" @click="viewProduct(ni.id)">
-                    View
+                    оглянути
                   </div>
                 </div>
               </div>
@@ -110,14 +122,17 @@
                   >/{{ currentGenre }}</span
                 >
               </h2>
-              <div class="right category-select">
-                <div
+              <!-- <v-select :option="genre"></v-select> -->
+              <div class="right select is-small">
+                <select>
+                <option
                   v-for="c in genre"
-                  :class="['rela-inline', 'category', currentGenre===c?'active':'']"
+                  :class="[currentGenre===c?'active':'']"
                   @click="currentGenre = c; updateFilteredProducts()"
                 >
                   {{ c }}
-                </div>
+                </option>
+              </select>
               </div>
             </div>
             <div class="rela-block product-item-container">
@@ -134,7 +149,7 @@
                 class="rela-inline load-button-container"
                 @click="addDisplayedProducts"
               >
-                <p>Завантажити ще</p>
+              <p>Завантажити ще?</p>
                 <svg viewbox="0 0 50 50" class="button-svg">
                   <path />
                 </svg>
@@ -159,7 +174,7 @@
       <div :class="['product-view-container', productViewOpen?'active':'']">
         <div class="rela-block gutter-container">
           <div class="rela-block section-nav">
-            <h2 class="left">Перегляд товару</h2>
+            <h2 class="left">Огляд товару</h2>
             <div
               class="rela-inline right close-button"
               @click="productViewOpen = false"
@@ -204,6 +219,9 @@
             </div>
           </div>
           <div class="rela-block pv-container">
+              <h2>Коментарі</h2>
+          </div>
+          <div class="rela-block pv-container">
             <h2>Пов’язані товари</h2>
             <div class="rela-block pv-related-container">
             <!--   Other {{ viewedProduct.genre }} products here -->
@@ -228,7 +246,7 @@
                 class="rela-inline load-button-container"
                 @click="addDisplayedProducts"
               >
-                <p>Load More</p>
+              <p>Завантажити ще?</p>
                 <svg viewbox="0 0 50 50" class="button-svg">
                   <path />
                 </svg>
@@ -239,152 +257,29 @@
         </div>
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" charset="utf-8"></script>
+    <script charset="utf-8">
+        function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+            $('#imagePreview').hide();
+            $('#imagePreview').fadeIn(650);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+$("#imageUpload").change(function() {
+    readURL(this);
+});
+    </script>
+    <script>
+        const products = [[.product]]
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
-    <script src="https://unpkg.com/vue-select@latest"></script>
-    <script charset="utf-8">
-        Vue.component('productComp', {
-            template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
-                            <div class="rela-block product-pic" :style="{'background': 'url('+info.img+') center no-repeat'}">
-                                <div class="product-view-button" @click="view(info.id)">View</div>
-                            </div>
-                            <div class="rela-block product-info">
-                                <div class="rela-block">
-                                    <p>{{info.name}}</p>
-                                    <p class="product-artist">{{info.artist}}</p>
-                                </div>
-                                <div class="vert-center product-cost">{{info.cost}}₴</div>
-                            </div>
-                        </div>`,
-            props: {
-                info: {
-                    type: Object,
-                    default: {
-                        id: 0,
-                        name: 'Untitled',
-                        artist: 'Artist',
-                        desc: 'Product description',
-                        delay: 0,
-                        cost: 0,
-                        genre: 'test',
-                        img: 'https://picsum.photos/600/?random',
-                    }
-                },
-            },
-            methods: {
-                view: function(id) { app.viewProduct(id); },
-            }
-        });
-
-        // - Vue Stuff -
-        var app = new Vue({
-            el: '#app',
-            data: {
-                menuOpen: false,
-                cartOpen: false,
-                searchOpen: false,
-                productViewOpen: false,
-                currentViewedProduct: 0, // Product's id
-                viewedProduct: {},
-                searchInput: '',
-                newItems: [],
-                newItemPos: 0,
-                products: [[.product]],
-                filteredProducts: [],
-                displayedProducts: [],
-                displayPos: 0,
-                genre: ['Усі'],
-                currentGenre: 'Усі',
-                title: '',
-            },
-            watch: {
-                searchInput: function(){
-                    this.searchText = this.searchInput;
-                    this.filteredProducts = [];
-                    if(this.searchText.length === 0) {
-                        this.updateFilteredProducts()
-                    }
-                    else {
-                        for(var i in this.products) {
-                            if(this.products[i].artist.toLowerCase().includes(this.searchText.toLowerCase()) || this.products[i].name.toLowerCase().includes(this.searchText.toLowerCase())) {
-                                this.filteredProducts.push(this.products[i]);
-                            }
-                        }
-                    }
-                    this.updateDisplayedProducts();
-
-                }
-            },
-            mounted: function() {
-                axios.get("/api/genres").then((response) => {
-                    for (var i = 0; i < 10; i++) {
-                        this.genre.push(response.data.genres[i]["name"]);
-                    }
-                });
-            },
-            methods: {
-                init: function() {
-                    app.updateNewItems();
-                    app.updateFilteredProducts();
-                },
-                updateNewItems: function() {
-                    // sort all of the products by date and then take the 10 newest
-                    this.newItems = [];
-                    var arr = [];
-                    // 1 because of the test product (Need to fix that)
-                    for(var i = 1; i < this.products.length; i++) {arr.push(this.products[i])}
-                    arr.sort(function(a, b){ return (new Date(b.date)).getTime() - (new Date(a.date)).getTime() });
-
-                    for(var i = 0; i < 10 && i < arr.length; i++) { this.newItems.push(arr[i]) }
-                },
-                updateNewItemPos: function(num) {
-                    this.newItemPos += num;
-                    // Checks
-                    if(this.newItemPos < 0) { this.newItemPos = 0 }
-                    if(this.newItems.length > 1 && (this.newItemPos > this.newItems.length - 1)) {
-                        this.newItemPos = this.newItems.length - 1
-                    }
-                },
-                updateFilteredProducts: function() {
-                    this.filteredProducts = [];
-                    for(var i in this.products) {
-                        if(this.products[i].genre === this.currentGenre || this.currentGenre === 'Усі') { this.filteredProducts.push(this.products[i]) }
-                    }
-                    app.updateDisplayedProducts();
-                },
-                updateDisplayedProducts: function() {
-                    this.displayedProducts = [];
-                    console.log('updateDisplayedProducts');
-                    this.displayPos = 0;
-                    app.addDisplayedProducts();
-                },
-                addDisplayedProducts: function() {
-                    if((this.filteredProducts.length - this.displayPos) <= 12) {
-                        this.displayedProducts = JSON.parse(JSON.stringify( this.filteredProducts ));
-                        for(var i = 0; i < this.displayedProducts.length; i++) { this.displayedProducts[i].delay = (i - this.displayPos); }
-                        this.displayPos = this.filteredProducts.length;
-                    } else {
-                        // The ternary is for the test product. I really need to fix that.... :/
-                        for(var i = 0; i < (this.displayPos===0?13:12); i++) {
-                            this.displayedProducts.push(this.filteredProducts[i + this.displayPos]);
-                            this.displayedProducts[i+this.displayPos].delay = (i);
-                        }
-                        this.displayPos = this.displayedProducts.length;
-                    }
-                },
-                updateViewedProduct: function() {
-                    this.viewedProduct = (app.products.filter(function(el){ return el.id === app.currentViewedProduct }))[0];
-                },
-                viewProduct: function(id) {
-                    this.currentViewedProduct = id;
-                    app.updateViewedProduct();
-                    this.productViewOpen = true;
-                },
-            }
-        });
-        app.init();
-        // Scroll Function
-        // window.addEventListener('scroll', function() { app.pageScrolled = (window.scrollY > 0); }, false);
-    </script>
+    <script src="/js/explore.js"></script>
   </body>
 </html>
