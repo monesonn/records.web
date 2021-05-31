@@ -77,7 +77,11 @@ func UserSignUp(c *fiber.Ctx) error {
 	user.CreatedAt = time.Now()
 	user.Email = signUp.Email
 	user.Username = signUp.Username
-	user.PasswordHash = utils.GeneratePassword(signUp.Password)
+	// Encrypt pasword.
+	// user.PasswordHash = utils.GeneratePassword(signUp.Password)
+	// Insert password without encryption, password will be encrypted on db-side by calling trigger.
+	// In default, use line above instead of this.
+	user.PasswordHash = signUp.Password
 	user.UserStatus = true // false == blocked, true == active
 	user.UserRole = role
 
