@@ -10,18 +10,21 @@ type ClientQueries struct {
 }
 
 func (q *ClientQueries) GetClients() ([]models.Client, error) {
-	// Define review variable.
 	clients := []models.Client{}
-
 	query := `SELECT * FROM client`
-
-	// Send query to database.
 	err := q.Select(&clients, query)
 	if err != nil {
-		// Return empty object and error.
 		return clients, err
 	}
-
-	// Return query result.
 	return clients, nil
+}
+
+func (q *RecordsQueries) GetClient(id int) (models.Client, error) {
+	client := models.Client{}
+	query := `SELECT * FROM client where client_id = $1`
+	err := q.Get(&client, query, id)
+	if err != nil {
+		return client, err
+	}
+	return client, nil
 }

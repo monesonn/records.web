@@ -74,3 +74,30 @@ func GetClients(c *fiber.Ctx) error {
 		"genres": clients,
 	})
 }
+
+func GetMyProfile(c *fiber.Ctx) error {
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	client, err := db.GetClient(1)
+	if err != nil {
+		// Return, if client not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":  true,
+			"msg":    "client were not found",
+			"client": nil,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"client": client,
+	})
+}
