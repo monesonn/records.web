@@ -77,8 +77,10 @@
           </div>
         </div>
         <!-- <div :class=['cartOpen']> -->
-        <div :class="['cart', cartOpen?'active':'']">
-            <h3>Візок</h3>
+        <div v-for="cp in cart" :class="['cart', cartOpen?'active':'']">
+            <h1>Візок</h1>
+            {{cp.img}}
+            <h2 class="bottom"> Total: {{total}}₴</h2>
         </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">

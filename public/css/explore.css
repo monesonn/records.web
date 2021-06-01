@@ -365,8 +365,15 @@ h3 {
   background-size: cover !important;
   background-color: #e6e6e6;
 }
+.product-pic:hover {
+  opacity: 0.8;
+  -webkit-transition: 0.3s ease-in-out;
+  transition: 0.3s ease-in-out;
+}
 .product-pic:hover .product-view-button {
   opacity: 1;
+  -webkit-transition: 0.3s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 .product-view-button {
   position: absolute;
@@ -555,4 +562,15 @@ h3 {
 }
 .cart .section-nav {
   margin-bottom: 0;
+}
+.hover figure {
+  background: black;
+}
+.hover figure img {
+  opacity: 1;
+  -webkit-transition: 0.3s ease-in-out;
+  transition: 0.3s ease-in-out;
+}
+.hover figure:hover img {
+  opacity: 0.5;
 }

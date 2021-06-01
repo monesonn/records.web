@@ -48,6 +48,7 @@ Vue.component("productComp", {
       app.viewProduct(id);
     },
     addItem: function (product) {
+      app.total += product.cost;
       app.cart.push(product);
       console.log(app.cart);
     },
@@ -76,6 +77,7 @@ var app = new Vue({
     currentGenre: "Усі",
     title: "",
     cart: [],
+    total: 0,
   },
   watch: {
     searchInput: function () {
