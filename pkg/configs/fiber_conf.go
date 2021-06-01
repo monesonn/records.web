@@ -14,7 +14,7 @@ import (
 func FiberConfig() fiber.Config {
 	// Define server settings.
 	readTimeoutSecondsCount, _ := strconv.Atoi(os.Getenv("SERVER_READ_TIMEOUT"))
-	engine := html.New("./views", ".html")
+	engine := html.New("./www", ".html")
 	engine.Delims("[[", "]]")
 	// Return Fiber configuration.
 	return fiber.Config{

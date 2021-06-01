@@ -9,10 +9,10 @@ import (
 func PublicRoutes(a *fiber.App) {
 	api := a.Group("api")
 
-	a.Static("/", "./public")
+	a.Static("/", "./assets")
 
 	a.Get("/", func(c *fiber.Ctx) error {
-		return c.SendFile("./views/index.html")
+		return c.SendFile("./www/index.html")
 	})
 
 	// Routes for GET method:

@@ -26,9 +26,11 @@
                 <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);">
             </div>
         </div>
-        <h2>Профіль</h2>
-        <h4>Ім'я:</h4>
-        <h4>Прізвище:</h4>
+        <div :class="[profileOpen?'active':'']">
+            <h2>Профіль</h2>
+            <h4>Ім'я:</h4>
+            <h4>Прізвище:</h4>
+        </div>
     </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
@@ -79,7 +81,7 @@
         <!-- <div :class=['cartOpen']> -->
         <div v-for="cp in cart" :class="['cart', cartOpen?'active':'']">
             <h1>Візок</h1>
-            {{cp.img}}
+            {{ cart }}
             <h2 class="bottom"> Total: {{total}}₴</h2>
         </div>
         <div class="rela-block page-section top-section">

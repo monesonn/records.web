@@ -49,7 +49,8 @@ Vue.component("productComp", {
     },
     addItem: function (product) {
       app.total += product.cost;
-      app.cart.push(product);
+      localStorage.total = app.total;
+      app.cart.push(product.cost);
       console.log(app.cart);
     },
   },
@@ -64,6 +65,7 @@ var app = new Vue({
     cartOpen: false,
     searchOpen: false,
     productViewOpen: false,
+    profileOpen: false,
     currentViewedProduct: 0, // Product's id
     viewedProduct: {},
     searchInput: "",
