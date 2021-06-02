@@ -66,6 +66,7 @@ var app = new Vue({
     searchOpen: false,
     productViewOpen: false,
     profileOpen: false,
+    loginStatus: false,
     currentViewedProduct: 0, // Product's id
     viewedProduct: {},
     searchInput: "",
