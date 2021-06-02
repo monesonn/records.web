@@ -43,7 +43,6 @@ func GenerateNewTokens(id string, credentials []string) (*Tokens, error) {
 func generateNewAccessToken(id string, credentials []string) (string, error) {
 	// Set secret key from .env file.
 	secret := os.Getenv("JWT_SECRET_KEY")
-	println(secret)
 
 	// Set expires minutes count for secret key from .env file.
 	minutesCount, _ := strconv.Atoi(os.Getenv("JWT_SECRET_KEY_EXPIRE_MINUTES_COUNT"))
@@ -72,9 +71,6 @@ func generateNewAccessToken(id string, credentials []string) (string, error) {
 		// Return error, it JWT token generation failed.
 		return "", err
 	}
-
-	println(t)
-
 	return t, nil
 }
 

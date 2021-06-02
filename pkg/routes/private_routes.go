@@ -22,7 +22,7 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/record", middleware.JWTProtected(), controllers.CreateRecord)
 
 	route.Get("/me", middleware.JWTProtected(), controllers.GetMyProfile)
-	route.Post("/user/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
+	route.Post("/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
 	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
 	a.Get("/admin", middleware.JWTProtected(), controllers.RenderAdminPanel)
