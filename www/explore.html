@@ -9,9 +9,8 @@
       href="https://fonts.googleapis.com/css?family=Comfortaa|Open+Sans"
       rel="stylesheet"
     />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/fontawesome.min.css" type="text/css" media="all">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/explore.css" type="text/css" media="all" />
     <link rel="stylesheet" href="/css/input-boxes.css" type="text/css" media="all" />
   </head>
@@ -19,39 +18,26 @@
     <div id="app">
       <div class="menu">
         <div class="abs-center">
-            <form action="explore" method="post" accept-charset="utf-8">
-                <h2>Вхід</h2>
-                <br></br>
-                <div class="group">
-                    <input type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                        <label>Е-пошта</label>
-                    </div>
-                <div class="group">
-                    <input type="password" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Пароль</label>
-                </div>
-                <button class="button is-link is-outlined" type="submit" name="submit" id="submit" value="" style="width:200px;">Увійти</button>
-            </form>
+            <login-comp>
+            </login-comp>
         </div>
-        <!-- <div :class="[profileOpen?'active':'']"> -->
-        <!--     <div class="avatar-upload"> -->
-        <!--     <div class="avatar-edit"> -->
-        <!--         <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" /> -->
-        <!--         <label for="imageUpload"></label> -->
-        <!--     </div> -->
-        <!--     <div class="avatar-preview"> -->
-        <!--         <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);"> -->
-        <!--     </div> -->
-        <!-- </div> -->
-        <!--     <h2>Профіль</h2> -->
-        <!--     <h4>Ім'я:</h4> -->
-        <!--     <h4>Прізвище:</h4> -->
-        <!-- </div> -->
-    <!-- </div> -->
+      </div>
+            <div :class="['profile', loginStatus?'active':'']">
+            <div class="avatar-upload">
+            <div class="avatar-edit">
+                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+                <label for="imageUpload"></label>
+            </div>
+            <div class="avatar-preview">
+                <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);">
+            </div>
+        </div>
+            <br></br>
+            <h2>Профіль</h2>
+            <p>Ім'я:<p>
+            <p>Прізвище:<p>
+            <button @click="" class="btn btn-outline-danger" style="width:200px; margin-top: 15%;">Вийти</button>
+        </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
         <div :class="['rela-block', 'nav-bar']">
@@ -60,7 +46,7 @@
               <div class="abs-center logo link">платівки.ua</div>
               <div
                 :class="['left', 'ui-icon', 'menu-button', menuOpen?'active':'']"
-                @click="menuOpen = !menuOpen"
+                  @click="menuOpen = !menuOpen; cartOpen = false"
               >
                 <svg viewbox="0 0 40 50" class="button-svg">
                   <path d="M 7 15 L 33 15" />
@@ -70,7 +56,7 @@
               </div>
               <div
                 :class="['right', 'ui-icon', 'cart-button', cartOpen?'active':'']"
-                @click="cartOpen = !cartOpen"
+                @click="cartOpen = !cartOpen; menuOpen = false"
               >
                 <svg viewbox="0 0 50 50" class="button-svg">
                   <path d="M 4 8 L 9 8 L 16 33 L 39 33 L 44 13 L 17 13" />
@@ -89,7 +75,7 @@
             </div>
             <div
               :class="['vert-center', 'ui-icon', 'search-button']"
-              @click="searchOpen = !searchOpen"
+              @click="searchOpen = !searchOpen; cartOpen = false"
             >
               <svg viewbox="0 0 50 50" class="button-svg">
                 <circle cx="20" cy="22" r="12" />
@@ -98,11 +84,45 @@
             </div>
           </div>
         </div>
-        <!-- <div :class=['cartOpen']> -->
-        <div v-for="cart" :class="['cart', cartOpen?'active':'']">
-            <h1>Візок</h1>
-            {{ cart }}
-            <h2 class="bottom"> Total: {{total}}₴</h2>
+        <div :class="['cart', cartOpen?'active':'']">
+            <div class="abs-center">
+                <h1 style="left:50%">Кошик</h1>
+                <br></br>
+                <div v-for="cp in cart" class="cart-item-container">
+                    <div
+              class="cart-pic"
+              :style="{'background': 'url(\''+cp.img+'\') no-repeat'}"
+            ></div>
+                    {{ cp.artist }} - {{ cp.name }}
+                </div>
+                <br></br>
+                <div v-if="cartIsEmpty === false">
+                <h3 class="bottom"> Усього: {{total}}₴</h3>
+                <button @click="checkoutOpen = !checkoutOpen; cartOpen = false" class="btn btn-outline-success" style="width:200px;">Оформити замовлення</button>
+                </div>
+            </div>
+        </div>
+        <div :class="['checkout-container', checkoutOpen?'active':'']">
+            <div class="rela-block gutter-container">
+                <div class="rela-block section-nav">
+                    <h2 class="left">Ваше замовлення</h2>
+                    <div
+                        class="rela-inline right close-button"
+                        @click="checkoutOpen = false; cartOpen = false"
+                    >
+                    <svg viewbox="0 0 30 30" class="button-svg">
+                    <path d="M 8 8 L 22 22" />
+                    <path d="M 22 8 L 8 22" />
+                    </svg>
+                </div>
+                <br></br>
+                <div class="left">
+                    <div v-for="cp in cart" class="cart-item-container">
+                        {{ cp.artist }} - {{ cp.name }}
+                    </div>
+                </div>
+            </div>
+            </div>
         </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">
@@ -131,11 +151,8 @@
                   class="rela-inline new-item"
                   :style="{'background': 'url(\''+ni.img+'\') center no-repeat', 'animation-delay': (index*0.1)+'s'}"
                 >
-                  <div class="new-item-info">
+                  <div class="new-item-info" @click="viewProduct(ni.id)">
                     <p class="abs-center">{{ ni.name }}<br />{{ ni.artist }}</p>
-                  </div>
-                  <div class="product-view-button" @click="viewProduct(ni.id)">
-                    огляд
                   </div>
                 </div>
               </div>
@@ -152,12 +169,23 @@
               </h2>
               <!-- <v-select :option="genre"></v-select> -->
               <div class="right select is-small">
-                <select>
+                <select v-on:change="updateFilteredProducts">
+                <option disabled value="">Виберіть жанр</option>
                 <option
-                  v-for="c in genre"
-                  @click="currentGenre = c; updateFilteredProducts()"
+                  v-for="g in genre"
+                  v-on:click="currentGenre = g"
                 >
-                  {{ c }}
+                {{ g }}
+                </option>
+              </select>
+              <select>
+                <option disabled value="">Виберіть жанр</option>
+                <option
+                  v-for="g in genre"
+                  v-on:click="currentGenre = g;
+                              updateFilteredProducts()"
+                >
+                {{ g }}
                 </option>
               </select>
               </div>

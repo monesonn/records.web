@@ -13,12 +13,70 @@
 
 // - Product Component -
 
-Vue.component("productComp", {
+Vue.component("login-comp", {
+  template: `<div accept-charset="utf-8">
+                <h2>Вхід</h2>
+                <br></br>
+                <div class="group">
+                    <input v-model="loginData.email" placeholder="" type="text" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Е-пошта</label>
+                    </div>
+                <div class="group">
+                    <input v-model="loginData.password" type="password" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    <label>Пароль</label>
+                </div>
+                <button @click="checkLogin()" class="btn btn-outline-primary is-outlined" style="width:200px;">Увійти</button>
+            </div>`,
+  data: function () {
+    return {
+      loginData: {
+        email: "",
+        password: "",
+      },
+    };
+  },
+  // props: {
+  // loginData: {
+  // type: Object,
+  // default: {
+  // email: "client@mail.com",
+  // password: "client",
+  // },
+  // },
+  // },
+  methods: {
+    checkLogin: function () {
+      axios
+        .post("/api/sign/in", this.loginData)
+        .then((res) => {
+          localStorage.access = res.data.tokens.access;
+          localStorage.refresh = res.data.tokens.refresh;
+          app.loginStatus = true;
+        })
+        .catch((err) => {
+          app.err = err;
+        });
+    },
+  },
+  watch: {
+    email(email) {
+      this.loginData.email = email;
+    },
+    password(password) {
+      this.loginData.password = password;
+    },
+  },
+});
+
+// @click='view(info.id)'
+Vue.component("product-comp", {
   template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
                             <div class="rela-block product-pic" :style="{'background': 'url('+info.img+') center no-repeat'}">
-                            <div class="product-view-button" @click="view(info.id)">огляд</div>
-                            <div class="product-buy-button" @click="addItem(info)">cart</div>
-
+                            <button class="btn btn-primary product-buy-button" @click="addItem(info)">До кошику <i class="bi bi-bag-plus"></i></button>
                             </div>
                             <div class="rela-block product-info">
                                 <div class="rela-block">
@@ -50,7 +108,7 @@ Vue.component("productComp", {
     addItem: function (product) {
       app.total += product.cost;
       localStorage.total = app.total;
-      app.cart.push(product.cost);
+      app.cart.push(product);
       console.log(app.cart);
     },
   },
@@ -66,6 +124,7 @@ var app = new Vue({
     searchOpen: false,
     productViewOpen: false,
     profileOpen: false,
+    checkoutOpen: false,
     loginStatus: false,
     currentViewedProduct: 0, // Product's id
     viewedProduct: {},
@@ -80,9 +139,18 @@ var app = new Vue({
     currentGenre: "Усі",
     title: "",
     cart: [],
+    cartIsEmpty: true,
     total: 0,
+    err: "",
   },
   watch: {
+    cart: function () {
+      if (this.cart.length) {
+        this.cartIsEmpty = false;
+      } else {
+        this.cartIsEmpty = true;
+      }
+    },
     searchInput: function () {
       this.searchText = this.searchInput;
       this.filteredProducts = [];
