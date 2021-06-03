@@ -18,8 +18,14 @@
     <div id="app">
       <div class="menu">
         <div class="abs-center">
-            <login-comp>
-            </login-comp>
+            <div v-if="lsPageToggle">
+                <login-comp>
+                </login-comp>
+            </div>
+            <div v-else>
+                <signup-comp>
+                </signup-comp>
+            </div>
         </div>
       </div>
             <div :class="['profile', loginStatus?'active':'']">
@@ -31,7 +37,7 @@
             <div class="avatar-preview">
                 <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);">
             </div>
-        </div>
+            </div>
             <br></br>
             <h2>Профіль</h2>
             <p>Ім'я:<p>
@@ -63,6 +69,7 @@
                   <circle cx="19" cy="41" r="3" />
                   <circle cx="37" cy="41" r="3" />
                 </svg>
+                  <span v-if="cartIsEmpty === false" class='cart-qty'>{{cart.length}}</span>
               </div>
             </div>
             <div :class="['nav-flip', 'bottom', searchOpen?'active':'']">
@@ -86,18 +93,19 @@
         </div>
         <div :class="['cart', cartOpen?'active':'']">
             <div class="abs-center">
-                <h1 style="left:50%">Кошик</h1>
+                <h1 style="left:50%; text-align:center;">Кошик</h1>
                 <br></br>
-                <div v-for="cp in cart" class="cart-item-container">
-                    <div
-              class="cart-pic"
-              :style="{'background': 'url(\''+cp.img+'\') no-repeat'}"
-            ></div>
-                    {{ cp.artist }} - {{ cp.name }}
+                <div v-for="(item,index) in cart" class="cart-item-container">
+                    <div class="row" style="text-align: center">
+                        <i class="bi bi-dash-circle qty-minus" @click="decrementQty(index);"></i>
+                        <i>{{ item.qty }}</i>
+                        <i class="bi bi-plus-circle qty-plus" @click="incrementQty(index);"></i>
+                    </div>
+                    {{ item.artist }} - {{ item.name }}
                 </div>
                 <br></br>
                 <div v-if="cartIsEmpty === false">
-                <h3 class="bottom"> Усього: {{total}}₴</h3>
+                <h3 class="bottom" style="text-align:center"> Усього: {{total}}₴</h3>
                 <button @click="checkoutOpen = !checkoutOpen; cartOpen = false" class="btn btn-outline-success" style="width:200px;">Оформити замовлення</button>
                 </div>
             </div>
@@ -332,9 +340,11 @@ $("#imageUpload").change(function() {
     <script>
         const products = [[.product]]
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
+    <script src="/js/material_input.js"></script>
     <script src="/js/explore.js"></script>
   </body>
 </html>

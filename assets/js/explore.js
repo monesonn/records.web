@@ -15,7 +15,12 @@
 
 Vue.component("login-comp", {
   template: `<div accept-charset="utf-8">
-                <h2>Вхід</h2>
+                <nav>
+                    <ol class="breadcrumb-list">
+                        <li class="breadcrumb-item active">Вхід</li>
+                        <li class="breadcrumb-item" style="cursor: pointer" @click="app.lsPageToggle = !app.lsPageToggle">Реєстрація</li>
+                    </ol>
+                </nav>
                 <br></br>
                 <div class="group">
                     <input v-model="loginData.email" placeholder="" type="text" required>
@@ -72,11 +77,77 @@ Vue.component("login-comp", {
   },
 });
 
+Vue.component("signup-comp", {
+  template: `<div accept-charset="utf-8">
+                <nav style="text-align:center">
+                    <ol class="breadcrumb-list">
+                        <li class="breadcrumb-item" style="cursor: pointer" @click="app.lsPageToggle = !app.lsPageToggle">Вхід</li>
+                        <li class="breadcrumb-item active">Реєстрація</li>
+                    </ol>
+                </nav>
+                <br></br>
+                <div class="group">
+                    <input v-model="signupData.firstName" type="text" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    <label>Ім’я</label>
+                </div>
+                <div class="group">
+                    <input v-model="signupData.lastName" type="text" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    <label>Прізвище</label>
+                </div>
+                <div class="group">
+                    <input v-model="signupData.gender" type="text" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    <label>Стать</label>
+                </div>
+                 <div class="group">
+                    <input v-model="signupData.username" placeholder="" type="text" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Псевдонім</label>
+                    </div>
+                <div class="group">
+                    <input v-model="signupData.password" type="password" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    <label>Пароль</label>
+                </div>
+                <button @click="" class="btn btn-outline-primary is-outlined" style="width:200px;">Зареєструватися</button>
+            </div>`,
+  data: function () {
+    return {
+      signupData: {
+        username: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        gender: "",
+        telNo: "",
+        birthday: "",
+      },
+    };
+  },
+  methods: {
+    signUp: function () {
+      axios
+        .post("/api/sign/up", this.signupData)
+        .then((res) => {})
+        .catch((err) => {
+          app.err = err;
+        });
+    },
+  },
+});
+
 // @click='view(info.id)'
 Vue.component("product-comp", {
   template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
                             <div class="rela-block product-pic" :style="{'background': 'url('+info.img+') center no-repeat'}">
-                            <button class="btn btn-primary product-buy-button" @click="addItem(info)">До кошику <i class="bi bi-bag-plus"></i></button>
+                            <button class="btn btn-primary product-buy-button" @click="addItem(info);">До кошику <i class="bi bi-bag-plus"></i></button>
                             </div>
                             <div class="rela-block product-info">
                                 <div class="rela-block">
@@ -94,10 +165,10 @@ Vue.component("product-comp", {
         name: "Untitled",
         artist: "Artist",
         desc: "Product description",
-        delay: 0,
         cost: 0,
         genre: "test",
         img: "https://picsum.photos/600/?random",
+        qty: 0,
       },
     },
   },
@@ -108,8 +179,17 @@ Vue.component("product-comp", {
     addItem: function (product) {
       app.total += product.cost;
       localStorage.total = app.total;
+      product["qty"] = 1;
+      delete product["delay"];
       app.cart.push(product);
       console.log(app.cart);
+    },
+  },
+  watch: {
+    "info.qty": function () {
+      if (info.qty === 0) {
+        console.log("ZERO");
+      }
     },
   },
 });
@@ -119,6 +199,7 @@ var app = new Vue({
   el: "#app",
   data: {
     profile: [],
+    lsPageToggle: true,
     menuOpen: false,
     cartOpen: false,
     searchOpen: false,
@@ -294,6 +375,21 @@ var app = new Vue({
       app.updateViewedProduct();
       this.productViewOpen = true;
     },
+    incrementQty: function (index) {
+      this.total += this.cart[index].cost;
+      this.cart[index].qty += 1;
+    },
+    decrementQty: function (index) {
+      this.cart[index].qty -= 1;
+      if (this.cart[index].qty == 0) {
+        this.cart.pop();
+      } else {
+        this.total -= this.cart[index].cost;
+      }
+    },
+    // Counter: function (array) {
+    //   array.forEach((item) => (item = (this[val] || 0) + 1));
+    // },
   },
 });
 app.init();
