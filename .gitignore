@@ -22,3 +22,6 @@ tmp/
 
 # enviroment variable
 .env
+
+# js libraries
+./assets/js/libraries
