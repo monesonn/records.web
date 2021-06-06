@@ -1,15 +1,35 @@
 package models
 
-import (
-	"database/sql"
-)
+import "time"
 
 type Client struct {
-	ClientID  int            `db:"client_id" json:"id"`
-	FirstName string         `db:"first_name" json:"fname"`
-	LastName  string         `db:"last_name" json:"lname"`
-	Telno     string         `db:"tel_no" json:"telno"`
-	Gender    string         `db:"gender" json:"gender"`
-	Birthday  sql.NullString `db:"birthday" json:"birthday"`
-	Picture   sql.NullInt32  `db:"picture" json:"picture"`
+	ID        string    `db:"id" json:"id"`
+	Username  string    `db:"username" json:"username" validate:"required,lte=255"`
+	Email     string    `db:"email" json:"email" validate:"required,email,lte=255"`
+	FirstName string    `db:"first_name" json:"fname"`
+	LastName  string    `db:"last_name" json:"lname"`
+	Telno     string    `db:"tel_no" json:"telno"`
+	Gender    string    `db:"gender" json:"gender"`
+	Birthday  string    `db:"birthday" json:"birthday"`
+	Picture   string    `db:"picture" json:"picture"`
+	CreatedAt time.Time `db:"inserted_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type Profile struct {
+	ID        string `db:"user_id" json:"uuid"`
+	FirstName string `db:"first_name" json:"fname"`
+	LastName  string `db:"last_name" json:"lname"`
+	Telno     string `db:"tel_no" json:"telno"`
+	Gender    string `db:"gender" json:"gender"`
+	Birthday  string `db:"birthday" json:"birthday"`
+	Picture   int    `db:"picture" json:"picture"`
+}
+
+type Review struct {
+	ClientID  int    `db:"view_client_id" json:"client_id"`
+	ProductID int    `db:"view_product_id" json:"product_id"`
+	ViewRate  int    `db:"view_rate" json:"rate"`
+	ViewDate  string `db:"view_date" json:"date"`
+	Comment   string `db:"comment_" json:"comment"`
 }

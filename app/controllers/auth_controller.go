@@ -157,7 +157,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		// Return, if user not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": true,
-			"msg":   "User with the given email is not found",
+			"msg":   "Користувача з вказанною електронною поштою не знайдено.",
 		})
 	}
 
@@ -167,7 +167,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		// Return, if password is not compare to stored in database.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   "Wrong user email address or password",
+			"msg":   "Неправильна електронна пошта або пароль.",
 		})
 	}
 

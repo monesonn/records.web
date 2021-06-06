@@ -1,51 +1,18 @@
 package controllers
 
 import (
-	"time"
+	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/monesonn/records.web/pkg/repository"
+	"github.com/monesonn/records.web/app/models"
 	"github.com/monesonn/records.web/pkg/utils"
 	"github.com/monesonn/records.web/platform/database"
 )
 
-func GetClients(c *fiber.Ctx) error {
-	// Get now time.
-	now := time.Now().Unix()
+func GetClientByUUID(c *fiber.Ctx) error {
+	uuid := c.Params("uuid")
 
-	// Get claims from JWT.
-	claims, err := utils.ExtractTokenMetadata(c)
-	if err != nil {
-		// Return status 500 and JWT parse error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	// Set expiration time from JWT data of current book.
-	expires := claims.Expires
-
-	// Checking, if now time greather than expiration from JWT.
-	if now > expires {
-		// Return status 401 and unauthorized error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   "unauthorized, check expiration time of your token",
-		})
-	}
-
-	// Set credential `book:update` from JWT data of current book.
-	credential := claims.Credentials[repository.ClientGetCredential]
-
-	// Only book creator with `book:update` credential can update his book.
-	if !credential {
-		// Return status 403 and permission denied error message.
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": true,
-			"msg":   "permission denied, check credentials of your token",
-		})
-	}
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -56,42 +23,12 @@ func GetClients(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get all clients.
-	clients, err := db.GetClients()
-	if err != nil {
-		// Return, if genres not found.
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":  true,
-			"msg":    "clients were not found",
-			"count":  0,
-			"genres": nil,
-		})
-	}
-	return c.JSON(fiber.Map{
-		"error":  false,
-		"msg":    nil,
-		"count":  len(clients),
-		"genres": clients,
-	})
-}
-
-func GetMyProfile(c *fiber.Ctx) error {
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	client, err := db.GetClient(1)
+	client, err := db.GetClientByUUID(uuid)
 	if err != nil {
 		// Return, if client not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":  true,
-			"msg":    "client were not found",
+			"msg":    "Client were not found.",
 			"client": nil,
 		})
 	}
@@ -99,5 +36,137 @@ func GetMyProfile(c *fiber.Ctx) error {
 		"error":  false,
 		"msg":    nil,
 		"client": client,
+	})
+}
+
+func GetClientByEmail(c *fiber.Ctx) error {
+	email := c.Params("email")
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	client, err := db.GetClientByEmail(email)
+	if err != nil {
+		// Return, if client not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":  true,
+			"msg":    "Client were not found.",
+			"client": nil,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"client": client,
+	})
+}
+
+func GetUser(c *fiber.Ctx) error {
+	username := c.Params("username")
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	client, err := db.GetUser(username)
+	if err != nil {
+		// Return, if client not found.
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":  true,
+			"msg":    "Client were not found.",
+			"client": nil,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"client": client,
+	})
+}
+
+func CreateProfile(c *fiber.Ctx) error {
+	profile := &models.Profile{}
+
+	// Check, if received JSON data is valid.
+	if err := c.BodyParser(profile); err != nil {
+		// Return status 400 and error message.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	validate := utils.NewValidator()
+
+	if err := validate.Struct(profile); err != nil {
+		// Return, if some fields are not valid.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   utils.ValidatorErrors(err),
+		})
+	}
+
+	if err := db.CreateProfile(profile); err != nil {
+		// Return status 500 and error message.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"client": profile,
+	})
+}
+
+func GetReview(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	review, err := db.GetReview(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":  true,
+			"msg":    fmt.Sprintf("comments with the given product id(%v) is not found.", id),
+			"review": nil,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"review": review,
 	})
 }
