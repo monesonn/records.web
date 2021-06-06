@@ -25,10 +25,13 @@ func PublicRoutes(a *fiber.App) {
 	api.Get("/record/:id", controllers.GetRecord)
 	api.Get("/products", controllers.GetProducts)
 	api.Get("/product", controllers.GetProductURL)
+	api.Get("/review/:id", controllers.GetReview)
 	// Routes for POST method:
 	api.Post("/sign/up", controllers.UserSignUp) // register a new user
 	api.Post("/sign/in", controllers.UserSignIn) // auth
 
 	a.Get("/explore", controllers.RenderProducts)
 	// a.Post("/explore", controllers.RenderProducts)
+
+	api.Post("/client", controllers.CreateProfile)
 }

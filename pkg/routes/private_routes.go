@@ -14,14 +14,17 @@ func PrivateRoutes(a *fiber.App) {
 	a.Static("/", "./assets")
 
 	// Routes for GET method:
-	route.Get("/clients", middleware.JWTProtected(), controllers.GetClients)
+	// route.Get("/clients", middleware.JWTProtected(), controllers.GetClients)
+
+	route.Get("/me/uuid/:uuid", middleware.JWTProtected(), controllers.GetClientByUUID)
+	route.Get("/me/email/:email", middleware.JWTProtected(), controllers.GetClientByEmail)
+	route.Get("/user/:username", controllers.GetUser)
 
 	// Routes for POST method:
 	route.Post("/genre", middleware.JWTProtected(), controllers.CreateGenre)
 	route.Post("/artist", middleware.JWTProtected(), controllers.CreateArtist)
 	route.Post("/record", middleware.JWTProtected(), controllers.CreateRecord)
 
-	route.Get("/me", middleware.JWTProtected(), controllers.GetMyProfile)
 	route.Post("/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
 	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
