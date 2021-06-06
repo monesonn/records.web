@@ -11,6 +11,9 @@
     />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
     <link rel="stylesheet" href="/css/explore.css" type="text/css" media="all" />
     <link rel="stylesheet" href="/css/input-boxes.css" type="text/css" media="all" />
   </head>
@@ -29,20 +32,22 @@
         </div>
       </div>
             <div :class="['profile', loginStatus?'active':'']">
+            <div class="abs-center">
             <div class="avatar-upload">
             <div class="avatar-edit">
                 <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
                 <label for="imageUpload"></label>
             </div>
             <div class="avatar-preview">
-                <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500);">
+                <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500?img=68);">
             </div>
             </div>
             <br></br>
             <h2>Профіль</h2>
-            <p>Ім'я:<p>
-            <p>Прізвище:<p>
-            <button @click="" class="btn btn-outline-danger" style="width:200px; margin-top: 15%;">Вийти</button>
+            <h4>Ім'я: {{ profile.fname }}<h4>
+            <h4>Прізвище: {{ profile.lname }}<h4>
+            <button @click="signOut()" class="btn btn-outline-danger" style="width:200px;">Вийти</button>
+            </div>
         </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
@@ -52,7 +57,7 @@
               <div class="abs-center logo link">платівки.ua</div>
               <div
                 :class="['left', 'ui-icon', 'menu-button', menuOpen?'active':'']"
-                  @click="menuOpen = !menuOpen; cartOpen = false"
+                  @click="menuOpen = !menuOpen; cartOpen = false; filterOpen = false;"
               >
                 <svg viewbox="0 0 40 50" class="button-svg">
                   <path d="M 7 15 L 33 15" />
@@ -62,7 +67,7 @@
               </div>
               <div
                 :class="['right', 'ui-icon', 'cart-button', cartOpen?'active':'']"
-                @click="cartOpen = !cartOpen; menuOpen = false"
+                @click="cartOpen = !cartOpen; menuOpen = false; filterOpen = false;"
               >
                 <svg viewbox="0 0 50 50" class="button-svg">
                   <path d="M 4 8 L 9 8 L 16 33 L 39 33 L 44 13 L 17 13" />
@@ -82,7 +87,7 @@
             </div>
             <div
               :class="['vert-center', 'ui-icon', 'search-button']"
-              @click="searchOpen = !searchOpen; cartOpen = false"
+                @click="searchOpen = !searchOpen; cartOpen = false; filterOpen = false;"
             >
               <svg viewbox="0 0 50 50" class="button-svg">
                 <circle cx="20" cy="22" r="12" />
@@ -93,9 +98,20 @@
         </div>
         <div :class="['cart', cartOpen?'active':'']">
             <div class="abs-center">
-                <h1 style="left:50%; text-align:center;">Кошик</h1>
+                <div v-if="cart.length === 0">
+                    <md-icon class="md-size-4x" style="right:50%;transform: translateX(50%)">add_shopping_cart</md-icon>
+                    <br></br>
+                    <h4>Це ваш кошик</h4>
+                    <p>Але здається він порожній. <i class="bi bi-emoji-wink"></i></p>
+                </div>
+                <div v-else>
+                <h2 style="left:50%; text-align:center;">Кошик</h2>
                 <br></br>
                 <div v-for="(item,index) in cart" class="cart-item-container">
+                     <div
+              class="cart-pic"
+              :style="{'background': 'url(\''+item.img+'\') no-repeat'}"
+            ></div>
                     <div class="row" style="text-align: center">
                         <i class="bi bi-dash-circle qty-minus" @click="decrementQty(index);"></i>
                         <i>{{ item.qty }}</i>
@@ -105,8 +121,9 @@
                 </div>
                 <br></br>
                 <div v-if="cartIsEmpty === false">
-                <h3 class="bottom" style="text-align:center"> Усього: {{total}}₴</h3>
-                <button @click="checkoutOpen = !checkoutOpen; cartOpen = false" class="btn btn-outline-success" style="width:200px;">Оформити замовлення</button>
+                <h4 class="bottom" style="text-align:center"> Усього: {{total}}₴</h4>
+                <button @click="checkoutOpen = !checkoutOpen; cartOpen = false" class="btn btn-outline-success" style="width:175px;">Оформити замовлення</button>
+                </div>
                 </div>
             </div>
         </div>
@@ -125,12 +142,13 @@
                 </div>
                 <br></br>
                 <div class="left">
-                    <div v-for="cp in cart" class="cart-item-container">
-                        {{ cp.artist }} - {{ cp.name }}
+                    <div v-for="(item, index) in cart" class="rela-block">
+                        <h2 style="font-size:16px">{{ index+1 }}. {{ item.artist }} - {{ item.name }}</h2>
                     </div>
                 </div>
             </div>
             </div>
+            <h2 style="bottom: 5%; right: 5%; position: absolute;">Усього: {{ total }}</h2>
         </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">
@@ -175,28 +193,9 @@
                   >/{{ currentGenre }}</span
                 >
               </h2>
-              <!-- <v-select :option="genre"></v-select> -->
-              <div class="right select is-small">
-                <select v-on:change="updateFilteredProducts">
-                <option disabled value="">Виберіть жанр</option>
-                <option
-                  v-for="g in genre"
-                  v-on:click="currentGenre = g"
-                >
-                {{ g }}
-                </option>
-              </select>
-              <select>
-                <option disabled value="">Виберіть жанр</option>
-                <option
-                  v-for="g in genre"
-                  v-on:click="currentGenre = g;
-                              updateFilteredProducts()"
-                >
-                {{ g }}
-                </option>
-              </select>
-              </div>
+              <md-button class="right md-icon-button" @click="filterOpen = !filterOpen; menuOpen = false; searchOpen = false; cartOpen = false;">
+                      <md-icon class="right">view_list</md-icon>
+              </md-button>
             </div>
             <div class="rela-block product-item-container">
               <product-comp
@@ -220,6 +219,25 @@
             </div>
           </div>
         </div>
+        <div :class="['cart', filterOpen?'active':'']">
+            <div class="abs-center">
+              <h2>Фільтр</h2>
+              <br></br>
+              <md-autocomplete class="md-size-xsmall" v-model="currentGenre" :md-options="genre">
+                  <label>Жанр</label>
+              </md-autocomplete>
+              <md-field>
+                <label for="age">Рік</label>
+                <md-input type="number" autocomplete="age" v-model="currentYear"/>
+              </md-field>
+              <md-autocomplete class="md-size-xsmall" v-model="currentCountry" :md-options="genre">
+                  <label>Країна</label>
+              </md-autocomplete>
+              <md-autocomplete class="md-size-xsmall" v-model="currentLabel" :md-options="genre">
+                  <label>Лейбл</label>
+              </md-autocomplete>
+            </div>
+        </div>
         <div class="rela-block page-section new-section">
           <div class="rela-block gutter-container">
             <div class="rela-block section-nav">
@@ -229,7 +247,7 @@
         </div>
         <div class="rela-block footer">
           <div class="rela-block gutter-container inner-footer-container">
-              <div class="logo">платівки.</div>
+              <div class="logo"><i class="bi bi-music-note-beamed"></i></div>
           </div>
         </div>
       </div>
@@ -279,10 +297,27 @@
                   v-html="viewedProduct.desc||'Немає опису'"
                 ></div>
               </div>
+              <div class="rela-block info-row">
+                <div class="rela-inline left">Рейтинг:</div>
+                <div
+                  class="rela-block text"
+                  v-html="viewedProduct.rate||'Немає рейтингу'"
+                ></div>
+              </div>
             </div>
           </div>
           <div class="rela-block pv-container">
               <h2>Коментарі</h2>
+              <div v-if="loginStatus === true">
+                  <h4>Ваш коментар</h4>
+                  <md-field>
+                      <label>Textarea</label>
+                      <md-textarea v-model="textarea"></md-textarea>
+                 </md-field>
+                 <button @click="addComment()" class="btn btn-outline-success right" style="width:200px; margin-top: -1.5%">Додати <i class="bi bi-chat-dots"></i></button>
+             </div>
+              <comment-comp v-for="(item,index) in comments" :info="item">
+              </comment-comp>
           </div>
           <div class="rela-block pv-container">
             <h2>Пов’язані товари</h2>
@@ -340,11 +375,13 @@ $("#imageUpload").change(function() {
     <script>
         const products = [[.product]]
     </script>
-
+    <script src="/js/material_input.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
-    <script src="/js/material_input.js"></script>
+    <script src="/js/libraries/vuelidate/dist/vuelidate.min.js"></script>
+    <script src="/js/libraries/vuelidate/dist/validators.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material"></script>
     <script src="/js/explore.js"></script>
   </body>
 </html>

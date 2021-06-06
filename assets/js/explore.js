@@ -1,40 +1,44 @@
-// --- Notes ---
-// https://dribbble.com/shots/4099945-Tacos-and-Trees-Marijuana-delivery-with-Tacos/attachments/939399
-// 1039px is a good width
+Vue.use(VueMaterial.default);
+Vue.use(window.vuelidate.default);
+// Vue.use(window.vuelidate.validators);
 
-// - To Do -
-// Finish designing product view
-// Add Similar items to product view
-// Finish the overall design as well
-// *** Need to fix the animation with the test product and reuse of the first product and shit ***
-// Make the search/filtering functions
-// https://medium.com/@thierrymeier/filtering-and-sorting-best-practices-on-mobile-61626449cec
-// Set up the cart system
+const { required, email, maxLength, minLength } = window.validators;
 
-// - Product Component -
-
-Vue.component("login-comp", {
-  template: `<div accept-charset="utf-8">
+Vue.component("LoginComp", {
+  template: `<div accept-charset="utf-8" style="width:200px;">
                 <nav>
                     <ol class="breadcrumb-list">
                         <li class="breadcrumb-item active">Вхід</li>
-                        <li class="breadcrumb-item" style="cursor: pointer" @click="app.lsPageToggle = !app.lsPageToggle">Реєстрація</li>
+                        <li class="breadcrumb-item" style="cursor: pointer" @click="toggle = !toggle">Реєстрація</li>
                     </ol>
                 </nav>
                 <br></br>
-                <div class="group">
-                    <input v-model="loginData.email" placeholder="" type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                        <label>Е-пошта</label>
+                <form novalidate @submit.prevent="validateLogin">
+                    <div class="group">
+                        <md-field :class="getValidation('email')">
+                            <label>Електронна пошта</label>
+                            <md-input v-model="loginData.email" type="email"></md-input>
+                            <span class="md-error" v-if="!$v.loginData.email.required">Введіть електронну адресу</span>
+                            <span class="md-error" v-if="!$v.loginData.email.email">Це не схоже на електронну адресу</span>
+                        </md-field>
                     </div>
-                <div class="group">
-                    <input v-model="loginData.password" type="password" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Пароль</label>
+                    <div class="group">
+                        <md-field :class="getValidation('password')">
+                            <label>Пароль</label>
+                            <md-input v-model="loginData.password" type="password"></md-input>
+                            <span class="md-error" v-if="!$v.loginData.password.required">Йой, Ви забули ввести пароль</span>
+                        </md-field>
+                    </div>
+                <md-progress-bar md-mode="indeterminate" v-if="sending" />
+                <div v-if="err === null">
+                <button type="submit" class="btn btn-outline-primary is-outlined" style="width:200px;" :disabled="sending">Увійти</button>
+                </button>
                 </div>
-                <button @click="checkLogin()" class="btn btn-outline-primary is-outlined" style="width:200px;">Увійти</button>
+                <div v-else="err != null" style="color:red; padding: 10px 0;">
+                    <button type="submit" class="btn btn-outline-danger is-outlined" style="width:200px; margin: 15px 0;" :disabled="sending">Увійти</button>
+                    <small>{{ err.msg }}</small>
+                </div>
+                </form>
             </div>`,
   data: function () {
     return {
@@ -42,32 +46,80 @@ Vue.component("login-comp", {
         email: "",
         password: "",
       },
+      uuid: null,
+      err: null,
+      toggle: true,
+      sending: false,
+      sucess: false,
     };
   },
-  // props: {
-  // loginData: {
-  // type: Object,
-  // default: {
-  // email: "client@mail.com",
-  // password: "client",
-  // },
-  // },
-  // },
+  validations: {
+    loginData: {
+      email: { required, email },
+      password: { required },
+    },
+  },
   methods: {
-    checkLogin: function () {
+    getValidation(fieldName) {
+      const field = this.$v.loginData[fieldName];
+
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty,
+        };
+      }
+    },
+    clearForm: function () {
+      this.$v.$reset();
+      this.loginData.email = "";
+      this.loginData.password = "";
+    },
+    validateLogin() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.Login();
+      }
+    },
+    Login: function () {
+      this.sending = true;
       axios
         .post("/api/sign/in", this.loginData)
         .then((res) => {
           localStorage.access = res.data.tokens.access;
           localStorage.refresh = res.data.tokens.refresh;
-          app.loginStatus = true;
+          this.getProfile();
         })
         .catch((err) => {
-          app.err = err;
+          this.err = err.response.data;
+          this.sending = false;
         });
+    },
+    getProfile: function () {
+      window.setTimeout(() => {
+        axios
+          .get(`/api/me/email/${this.loginData.email}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.access}`,
+            },
+          })
+          .then((res) => {
+            app.profile = res.data.client;
+            app.loginStatus = true;
+            this.err = null;
+          })
+          .catch((err) => {
+            this.err = err.response.data;
+          });
+        this.sending = false;
+        this.clearForm();
+      }, 2000);
     },
   },
   watch: {
+    toggle() {
+      app.lsPageToggle = this.toggle;
+    },
     email(email) {
       this.loginData.email = email;
     },
@@ -78,67 +130,218 @@ Vue.component("login-comp", {
 });
 
 Vue.component("signup-comp", {
-  template: `<div accept-charset="utf-8">
+  template: `<div accept-charset="utf-8" style="width: 200px;">
                 <nav style="text-align:center">
                     <ol class="breadcrumb-list">
-                        <li class="breadcrumb-item" style="cursor: pointer" @click="app.lsPageToggle = !app.lsPageToggle">Вхід</li>
+                        <li class="breadcrumb-item" style="cursor: pointer" @click="toggle = !toggle">Вхід</li>
                         <li class="breadcrumb-item active">Реєстрація</li>
                     </ol>
                 </nav>
                 <br></br>
+                <form novalidate @submit.prevent="validateUser">
                 <div class="group">
-                    <input v-model="signupData.firstName" type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Ім’я</label>
+                    <md-field :class="getValidationProfile('fname')">
+                        <label>Ім’я</label>
+                        <md-input v-model="profileData.fname" type="text" :disabled="sending"></md-input>
+                        <span class="md-error" v-if="!$v.profileData.fname.required">Потрібно вказати ім’я</span>
+                        <span class="md-error" v-else-if="!$v.profileData.fname.minLength">Недійсні дані</span>
+                    </md-field>
                 </div>
                 <div class="group">
-                    <input v-model="signupData.lastName" type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Прізвище</label>
+                    <md-field :class="getValidationProfile('lname')">
+                        <label>Прізвище</label>
+                        <md-input v-model="profileData.lname" type="text"></md-input>
+                        <span class="md-error" v-if="!$v.profileData.lname.required">Потрібно вказати прізвище</span>
+                        <span class="md-error" v-else-if="!$v.profileData.lname.minlength">Недійсні дані</span>
+                    </md-field>
                 </div>
                 <div class="group">
-                    <input v-model="signupData.gender" type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Стать</label>
+                <md-field :class="getValidationProfile('gender')">
+                    <label class="selected" for="gender">Стать</label>
+                    <md-select v-model="profileData.gender" name="gender" id="gender" placeholder="Стать" md-dense :disabled="sending">
+                        <md-option value="Male">Чоловік</md-option>
+                        <md-option value="Female">Жінка</md-option>
+                        <md-option value="Other">Інший варіант</md-option>
+                    </md-select>
+                    <span class="md-error">Вкажіть свою стать</span>
+                </md-field>
+                </div>
+                <div class="group">
+                      <md-datepicker id="date" v-model="profileData.birthday" :class="getValidationProfile('birthday')">
+                        <label>Дата народження</label>
+                        <span class="md-error">Вкажіть свою дату народження.</span>
+                      </md-datepicker>
+                </div>
+                <div class="group">
+                    <md-field :class="getValidationSignUp('email')">
+                        <label>Електронна пошта</label>
+                        <md-input v-model="signupData.email" type="text"></md-input>
+                        <span class="md-error" v-if="!$v.signupData.email.required">Вкажіть електронну адресу</span>
+                        <span class="md-error" v-if="!$v.signupData.email.email">Це не схоже на електронну адресу</span>
+                    </md-field>
                 </div>
                  <div class="group">
-                    <input v-model="signupData.username" placeholder="" type="text" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
+                    <md-field :class="getValidationSignUp('username')">
                         <label>Псевдонім</label>
-                    </div>
-                <div class="group">
-                    <input v-model="signupData.password" type="password" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                    <label>Пароль</label>
+                        <md-input v-model="signupData.username" type="text"></md-input>
+                        <span class="md-error" v-if="!$v.signupData.username.required">Потрібно вказати псевдонім</span>
+                    </md-field>
                 </div>
-                <button @click="" class="btn btn-outline-primary is-outlined" style="width:200px;">Зареєструватися</button>
+                <div class="group">
+                    <md-field :class="getValidationSignUp('password')">
+                        <label>Пароль</label>
+                        <md-input v-model="signupData.password" type="password"></md-input>
+                        <span class="md-error" v-if="!$v.signupData.password.required">Потрібно вказати пароль</span>
+                        <span class="md-error" v-else-if="!$v.signupData.password.minlength">Пароль повинен містити, як мінімум 8 символів.</span>
+                    </md-field>
+                </div>
+                <md-progress-bar md-mode="indeterminate" v-if="sending" />
+                <div v-if="success === false">
+                <button type="submit" class="btn btn-outline-primary is-outlined" style="width:200px;" :disabled="sending">Зареєструватися</button>
+                </div>
+                <div v-else>
+                    <button @click="toggle = !toggle" class="btn btn-outline-success is-outlined" style="width:200px;" :disabled="sending">Успіх</button>
+                </div>
+                </form>
+                <div v-if="err != null" style="color:red; padding: 10px 0;">
+                    <small>{{ err.msg }}</small>
+                </div>
             </div>`,
   data: function () {
     return {
       signupData: {
         username: "",
+        email: "",
         password: "",
-        firstName: "",
-        lastName: "",
-        gender: "",
-        telNo: "",
-        birthday: "",
       },
+      profileData: {
+        uuid: "",
+        fname: "",
+        lname: "",
+        gender: "",
+        // telno: "",
+        birthday: new Date("2018/03/26"),
+      },
+      toggle: true,
+      err: null,
+      success: false,
+      sending: false,
     };
   },
+  validations: {
+    profileData: {
+      fname: {
+        required,
+        minLength: minLength(2),
+      },
+      lname: {
+        required,
+        minLength: minLength(3),
+      },
+      gender: {
+        required,
+      },
+      birthday: {
+        required,
+      },
+    },
+    signupData: {
+      email: {
+        required,
+        email,
+      },
+      password: {
+        required,
+        minLength: minLength(8),
+      },
+      username: { required },
+    },
+  },
   methods: {
-    signUp: function () {
+    getValidationProfile(fieldName) {
+      const field = this.$v.profileData[fieldName];
+
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty,
+        };
+      }
+    },
+    getValidationSignUp(fieldName) {
+      const field = this.$v.signupData[fieldName];
+
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty,
+        };
+      }
+    },
+    clearForm: function () {
+      this.$v.$reset();
+      this.signupData.email = null;
+      this.signupData.password = null;
+      this.signupData.username = null;
+      this.profileData.fname = null;
+      this.profileData.lname = null;
+      this.profileData.gender = null;
+      this.profileData.birthday = null;
+    },
+    createUser: function () {
+      this.sending = true;
       axios
         .post("/api/sign/up", this.signupData)
-        .then((res) => {})
+        .then((res) => {
+          this.profileData.uuid = res.data.user.id;
+          localStorage.uuid = res.data.user.id;
+        })
         .catch((err) => {
-          app.err = err;
+          this.err = err.response.data;
         });
+      this.createProfile();
+    },
+    createProfile: function () {
+      window.setTimeout(() => {
+        axios
+          .post("/api/client", this.profileData)
+          .then((res) => {
+            this.success = true;
+            this.clearForm();
+          })
+          .catch((err) => {
+            this.err = err.response.data;
+          });
+        this.sending = false;
+      }, 5000);
+    },
+    validateUser() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.createUser();
+      }
+    },
+  },
+  watch: {
+    toggle() {
+      app.lsPageToggle = this.toggle;
+    },
+    username(username) {
+      this.signupData.email = email;
+    },
+    password(password) {
+      this.signupData.password = password;
+    },
+    fname(fname) {
+      this.profileData.fname = fname;
+    },
+    lname(lname) {
+      this.profileData.lname = lname;
+    },
+    gender(gender) {
+      this.profileData.gender = gender;
+    },
+    birthday(birthday) {
+      this.profileData.birthday = birthday;
     },
   },
 });
@@ -146,8 +349,8 @@ Vue.component("signup-comp", {
 // @click='view(info.id)'
 Vue.component("product-comp", {
   template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
-                            <div class="rela-block product-pic" :style="{'background': 'url('+info.img+') center no-repeat'}">
-                            <button class="btn btn-primary product-buy-button" @click="addItem(info);">До кошику <i class="bi bi-bag-plus"></i></button>
+                            <div class="rela-block product-pic" @click='vieasdw(info.id)' :style="{'background': 'url('+info.img+') center no-repeat'}">
+                            <button class="btn btn-primary product-buy-button" @click="addItem(info);toggle = true">До кошику <i class="bi bi-bag-plus"></i></button>
                             </div>
                             <div class="rela-block product-info">
                                 <div class="rela-block">
@@ -172,17 +375,34 @@ Vue.component("product-comp", {
       },
     },
   },
+  data: function () {
+    return {
+      toggle: false,
+    };
+  },
   methods: {
     view: function (id) {
       app.viewProduct(id);
     },
     addItem: function (product) {
-      app.total += product.cost;
-      localStorage.total = app.total;
-      product["qty"] = 1;
       delete product["delay"];
-      app.cart.push(product);
-      console.log(app.cart);
+
+      var index = 0;
+      var exists = false;
+      for (index; index < app.cart.length; ++index) {
+        if (app.cart[index].name == product.name) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) {
+        app.incrementQty(index);
+        app.menu;
+      } else {
+        product["qty"] = 1;
+        app.cart.push(product);
+        app.total += product.cost;
+      }
     },
   },
   watch: {
@@ -190,6 +410,34 @@ Vue.component("product-comp", {
       if (info.qty === 0) {
         console.log("ZERO");
       }
+    },
+    toggle: function () {
+      app.cartOpen = this.toggle;
+    },
+  },
+});
+
+Vue.component("comment-comp", {
+  template: `
+    <div>
+    <div style="display:inline">
+        <md-avatar class="md-avatar-icon md-large">
+            <md-ripple>MM</md-ripple>
+        </md-avatar>
+        <h3>{{info.client_id}} -- {{info.rate}}</h3>
+        <p>{{info.comment}}</p>
+    </div>
+    </div>`,
+  props: {
+    info: {
+      type: Object,
+      default: {
+        client_id: 0,
+        product_id: 0,
+        rate: 0,
+        date: null,
+        comment: null,
+      },
     },
   },
 });
@@ -199,11 +447,13 @@ var app = new Vue({
   el: "#app",
   data: {
     profile: [],
+    comments: [],
     lsPageToggle: true,
     menuOpen: false,
     cartOpen: false,
     searchOpen: false,
     productViewOpen: false,
+    filterOpen: false,
     profileOpen: false,
     checkoutOpen: false,
     loginStatus: false,
@@ -218,6 +468,9 @@ var app = new Vue({
     displayPos: 0,
     genre: ["Усі"],
     currentGenre: "Усі",
+    currentCountry: null,
+    currentYear: 1980,
+    currentLabel: null,
     title: "",
     cart: [],
     cartIsEmpty: true,
@@ -232,6 +485,7 @@ var app = new Vue({
         this.cartIsEmpty = true;
       }
     },
+    // cart["qty"]: function () {},
     searchInput: function () {
       this.searchText = this.searchInput;
       this.filteredProducts = [];
@@ -271,6 +525,9 @@ var app = new Vue({
         }
       }
       this.updateDisplayedProducts();
+    },
+    currentGenre: function () {
+      this.updateFilteredProducts();
     },
   },
   mounted: function () {
@@ -374,6 +631,9 @@ var app = new Vue({
       this.currentViewedProduct = id;
       app.updateViewedProduct();
       this.productViewOpen = true;
+      axios.get(`/api/review/${id}`).then((res) => {
+        this.comments = res.data.review;
+      });
     },
     incrementQty: function (index) {
       this.total += this.cart[index].cost;
@@ -381,11 +641,33 @@ var app = new Vue({
     },
     decrementQty: function (index) {
       this.cart[index].qty -= 1;
+      this.total -= this.cart[index].cost;
       if (this.cart[index].qty == 0) {
-        this.cart.pop();
-      } else {
-        this.total -= this.cart[index].cost;
+        this.cart.splice(index, 1);
       }
+    },
+    checkTokenn: function () {
+      return `Bearer ${localStorage.access}`;
+    },
+    signOut: function () {
+      axios
+        .post(
+          "/api/sign/out",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.access}`,
+            },
+          }
+        )
+        .then((res) => {})
+        .catch((err) => {
+          app.err = err;
+        });
+      this.loginStatus = !this.loginStatus;
+      localStorage.access = null;
+      localStorage.refresh = null;
+      this.profile = null;
     },
     // Counter: function (array) {
     //   array.forEach((item) => (item = (this[val] || 0) + 1));
