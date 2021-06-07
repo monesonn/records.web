@@ -24,4 +24,4 @@ tmp/
 .env
 
 # js libraries
-./assets/js/libraries/*
+./assets/js/libraries/
