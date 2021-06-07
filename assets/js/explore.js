@@ -4,7 +4,7 @@ Vue.use(window.vuelidate.default);
 
 const { required, email, maxLength, minLength } = window.validators;
 
-Vue.component("LoginComp", {
+Vue.component("login-comp", {
   template: `<div accept-charset="utf-8" style="width:200px;">
                 <nav>
                     <ol class="breadcrumb-list">
@@ -78,10 +78,10 @@ Vue.component("LoginComp", {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        this.Login();
+        this.login();
       }
     },
-    Login: function () {
+    login: function () {
       this.sending = true;
       axios
         .post("/api/sign/in", this.loginData)
@@ -105,7 +105,10 @@ Vue.component("LoginComp", {
           })
           .then((res) => {
             app.profile = res.data.client;
+            app.profile.initials = app.profile.fname[0] + app.profile.lname[0];
+            app.profile.date = app.profile.birthday.substring(0, 10);
             app.loginStatus = true;
+            localStorage.uuid = app.profile.id;
             this.err = null;
           })
           .catch((err) => {
@@ -172,19 +175,19 @@ Vue.component("signup-comp", {
                         <span class="md-error">Вкажіть свою дату народження.</span>
                       </md-datepicker>
                 </div>
+                 <div class="group">
+                    <md-field :class="getValidationSignUp('username')">
+                        <label>Псевдонім</label>
+                        <md-input v-model="signupData.username" type="text"></md-input>
+                        <span class="md-error" v-if="!$v.signupData.username.required">Потрібно вказати псевдонім</span>
+                    </md-field>
+                </div>
                 <div class="group">
                     <md-field :class="getValidationSignUp('email')">
                         <label>Електронна пошта</label>
                         <md-input v-model="signupData.email" type="text"></md-input>
                         <span class="md-error" v-if="!$v.signupData.email.required">Вкажіть електронну адресу</span>
                         <span class="md-error" v-if="!$v.signupData.email.email">Це не схоже на електронну адресу</span>
-                    </md-field>
-                </div>
-                 <div class="group">
-                    <md-field :class="getValidationSignUp('username')">
-                        <label>Псевдонім</label>
-                        <md-input v-model="signupData.username" type="text"></md-input>
-                        <span class="md-error" v-if="!$v.signupData.username.required">Потрібно вказати псевдонім</span>
                     </md-field>
                 </div>
                 <div class="group">
@@ -220,7 +223,7 @@ Vue.component("signup-comp", {
         lname: "",
         gender: "",
         // telno: "",
-        birthday: new Date("2018/03/26"),
+        birthday: null,
       },
       toggle: true,
       err: null,
@@ -290,10 +293,7 @@ Vue.component("signup-comp", {
       this.sending = true;
       axios
         .post("/api/sign/up", this.signupData)
-        .then((res) => {
-          this.profileData.uuid = res.data.user.id;
-          localStorage.uuid = res.data.user.id;
-        })
+        .then((res) => {})
         .catch((err) => {
           this.err = err.response.data;
         });
@@ -349,15 +349,18 @@ Vue.component("signup-comp", {
 // @click='view(info.id)'
 Vue.component("product-comp", {
   template: ` <div v-show="info.id >= 0" :class="['rela-inline', 'product-card']" :key="info.id" :style="{'animation-delay':(info.delay*0.1)+'s'}">
-                            <div class="rela-block product-pic" @click='vieasdw(info.id)' :style="{'background': 'url('+info.img+') center no-repeat'}">
-                            <button class="btn btn-primary product-buy-button" @click="addItem(info);toggle = true">До кошику <i class="bi bi-bag-plus"></i></button>
+                            <div class="rela-block product-pic" @click='view(info.id)' :style="{'background': 'url('+info.img+') center no-repeat'}">
+                                                        <div class="product-hover text-white"><h2 class="abs-center">{{info.cost}}₴</h2></div>
+
                             </div>
                             <div class="rela-block product-info">
                                 <div class="rela-block">
                                     <p>{{info.name}}</p>
                                     <p class="product-artist">{{info.artist}}</p>
                                 </div>
-                                <div class="vert-center product-cost">{{info.cost}}₴</div>
+                                <md-button class="vert-center product-cost md-icon-button" @click="addItem(info); toggle=true">
+        <md-icon>add_shopping_cart</md-icon>
+      </md-button>
                             </div>
                         </div>`,
   props: {
@@ -369,7 +372,10 @@ Vue.component("product-comp", {
         artist: "Artist",
         desc: "Product description",
         cost: 0,
+        medium: "",
         genre: "test",
+        country: { String: "" },
+        label: { String: "" },
         img: "https://picsum.photos/600/?random",
         qty: 0,
       },
@@ -420,13 +426,13 @@ Vue.component("product-comp", {
 Vue.component("comment-comp", {
   template: `
     <div>
-    <div style="display:inline">
-        <md-avatar class="md-avatar-icon md-large">
-            <md-ripple>MM</md-ripple>
-        </md-avatar>
-        <h3>{{info.client_id}} -- {{info.rate}}</h3>
-        <p>{{info.comment}}</p>
-    </div>
+        <md-list-item>
+            <md-avatar>
+                <img src="https://placeimg.com/40/40/people/6" alt="People">
+            </md-avatar>
+
+            <span class="md-list-item-text">{{info.comment}}</span>
+        </md-list-item>
     </div>`,
   props: {
     info: {
@@ -457,6 +463,7 @@ var app = new Vue({
     profileOpen: false,
     checkoutOpen: false,
     loginStatus: false,
+    editStatus: false,
     currentViewedProduct: 0, // Product's id
     viewedProduct: {},
     searchInput: "",
@@ -466,16 +473,32 @@ var app = new Vue({
     filteredProducts: [],
     displayedProducts: [],
     displayPos: 0,
-    genre: ["Усі"],
-    currentGenre: "Усі",
-    currentCountry: null,
-    currentYear: 1980,
-    currentLabel: null,
+    genre: [],
+    country: [],
+    label: [],
+    medium: [],
+    year: [
+      "< 1940",
+      "1940-1950",
+      "1950-1960",
+      "1960-1970",
+      "1970-1980",
+      "1980-1990",
+      "2000-2010",
+      "2010-2021",
+    ],
+    currentGenre: "",
+    currentCountry: "",
+    currentYear: "",
+    currentLabel: "",
+    currentMedium: "",
     title: "",
     cart: [],
+    order: null,
     cartIsEmpty: true,
     total: 0,
     err: "",
+    comment: "",
   },
   watch: {
     cart: function () {
@@ -485,10 +508,19 @@ var app = new Vue({
         this.cartIsEmpty = true;
       }
     },
+    comment(comment) {
+      this.comment = comment;
+    },
     // cart["qty"]: function () {},
     searchInput: function () {
       this.searchText = this.searchInput;
       this.filteredProducts = [];
+      this.currentGenre = "";
+      this.currentLabel = "";
+      this.currentYear = "";
+      this.currentCountry = "";
+      this.currentMedium = "";
+      this.currentYear = "";
 
       // const options = {
       // includeScore: true,
@@ -527,6 +559,34 @@ var app = new Vue({
       this.updateDisplayedProducts();
     },
     currentGenre: function () {
+      if (this.currentGenre.length !== 0) {
+        this.filterProductsByGenre();
+      } else {
+        this.updateFilteredProducts();
+      }
+    },
+    currentCountry: function () {
+      if (this.currentCountry.length !== 0) {
+        this.filterProductsByCountry();
+      } else {
+        this.updateFilteredProducts();
+      }
+    },
+    currentLabel: function () {
+      if (this.currentLabel.length !== 0) {
+        this.filterProductsByLabel();
+      } else {
+        this.updateFilteredProducts();
+      }
+    },
+    currentMedium: function () {
+      if (this.currentMedium.length !== 0) {
+        this.filterProductsByMedium();
+      } else {
+        this.updateFilteredProducts();
+      }
+    },
+    currentYear: function () {
       this.updateFilteredProducts();
     },
   },
@@ -536,6 +596,28 @@ var app = new Vue({
         this.genre.push(response.data.genres[i]["name"]);
       }
     });
+
+    this.medium = this.products.map((e) => {
+      return e.medium;
+    });
+    this.medium = [...new Set(this.medium)];
+
+    this.label = this.products.map((e) => {
+      return e.label.String;
+    });
+    this.label = [...new Set(this.label)];
+    this.label = this.label.filter(function (entry) {
+      return entry.trim() != "";
+    });
+
+    this.country = this.products.map((e) => {
+      return e.country.String;
+    });
+    this.country = [...new Set(this.country)];
+    this.country = this.country.filter(function (entry) {
+      return entry.trim() != "";
+    });
+
     // axios.get("/api/profiles").then((response) => {
     //     this.profile.push(response.data[0]);
     // });
@@ -549,6 +631,9 @@ var app = new Vue({
         desc: "",
         cost: 0,
         genre: "Test",
+        country: { String: "" },
+        label: { String: "" },
+        medium: "",
         img: "https://picsum.photos/600/?random",
         date: "0",
       });
@@ -586,14 +671,47 @@ var app = new Vue({
     },
     updateFilteredProducts: function () {
       this.filteredProducts = [];
-      for (var i in this.products) {
-        if (
-          this.products[i].genre === this.currentGenre ||
-          this.currentGenre === "Усі"
-        ) {
-          this.filteredProducts.push(this.products[i]);
-        }
-      }
+
+      // if (this.currentGenre === "Усі") {
+      //   this.filteredProducts = this.products.filter((item) => item.genre);
+      // } else {
+      //   this.filteredProducts = this.products.filter((item) =>
+      //     item.genre.includes(this.currentGenre)
+      //   );
+      // }
+
+      this.filteredProducts = this.products;
+
+      app.updateDisplayedProducts();
+    },
+    filterProductsByCountry: function () {
+      this.filteredProducts = this.filteredProducts.filter((item) =>
+        item.country.String.includes(this.currentCountry)
+      );
+      app.updateDisplayedProducts();
+    },
+    filterProductsByLabel: function () {
+      this.filteredProducts = this.filteredProducts.filter((item) =>
+        item.label.String.includes(this.currentLabel)
+      );
+      app.updateDisplayedProducts();
+    },
+    filterProductsByMedium: function () {
+      this.filteredProducts = this.filteredProducts.filter((item) =>
+        item.medium.includes(this.currentMedium)
+      );
+      app.updateDisplayedProducts();
+    },
+    filterProductsByGenre: function () {
+      this.filteredProducts = this.filteredProducts.filter((item) =>
+        item.genre.includes(this.currentGenre)
+      );
+
+      // for (var i in this.products) {
+      //   if (this.products[i].genre == this.currentGenre) {
+      //     this.filteredProducts.push(this.products[i]);
+      //   }
+      // }
       app.updateDisplayedProducts();
     },
     updateDisplayedProducts: function () {
@@ -646,9 +764,6 @@ var app = new Vue({
         this.cart.splice(index, 1);
       }
     },
-    checkTokenn: function () {
-      return `Bearer ${localStorage.access}`;
-    },
     signOut: function () {
       axios
         .post(
@@ -667,7 +782,52 @@ var app = new Vue({
       this.loginStatus = !this.loginStatus;
       localStorage.access = null;
       localStorage.refresh = null;
-      this.profile = null;
+      localStorage.uuid = null;
+      this.profile = [];
+    },
+    createOrder: function () {
+      this.order = this.cart;
+      axios
+        .post(
+          "/api/order",
+          {
+            user_id: localStorage.uuid,
+            total: this.total,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.access}`,
+            },
+          }
+        )
+        .then((res) => {
+          console.log("Ok");
+        })
+        .catch((err) => {
+          app.err = err;
+        });
+    },
+    addComment: function () {
+      axios
+        .post(
+          "/api/review",
+          {
+            user_id: localStorage.uuid,
+            product_id: this.viewedProduct.id,
+            comment: this.comment,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.access}`,
+            },
+          }
+        )
+        .then((res) => {
+          console.log("Ok");
+        })
+        .catch((err) => {
+          app.err = err;
+        });
     },
     // Counter: function (array) {
     //   array.forEach((item) => (item = (this[val] || 0) + 1));

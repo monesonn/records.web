@@ -296,18 +296,10 @@ h3 {
   -webkit-animation: slideIn 0.4s ease forwards;
   animation: slideIn 0.4s ease forwards;
 }
-.new-item:hover .new-item-info,
-.new-item:hover .product-view-button {
+.new-item:hover .new-item-info {
   opacity: 1;
 }
-.new-item:hover .product-buy-button {
-  opacity: 1;
-}
-.new-item:hover .new-item-info p,
-.new-item:hover .product-view-button p {
-  top: 50%;
-}
-.new-item:hover .product-buy-button p {
+.new-item:hover .new-item-info p {
   top: 50%;
 }
 .new-item-info {
@@ -368,11 +360,15 @@ h3 {
   -webkit-transition: 0.3s ease-in-out;
   transition: 0.3s ease-in-out;
 }
-.product-pic:hover .product-buy-button {
+.product-pic:hover .product-hover {
   opacity: 1;
-  -webkit-transition: 0.1s ease-in-out;
-  transition: 0.1s ease-in-out;
+  /* -webkit-transition: 0.3s ease-in-out; */
+  /* transition: 0.3s ease-in-out; */
 }
+.product-pic:hover .product-hover h2 {
+  top: 50%;
+}
+
 .product-view-button {
   position: absolute;
   right: 10px;
@@ -383,17 +379,20 @@ h3 {
   opacity: 0;
   cursor: pointer;
 }
-.product-buy-button {
+.product-hover {
   z-index: 100;
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 240px;
-  padding: 6px 12px;
+  height: 100%;
+  width: 100%;
   border-radius: 0%;
   box-shadow: 0 1px 8px -1px rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
-  cursor: pointer;
+  -webkit-animation: slideIn 4s ease forwards;
+  animation: slideIn 4s ease forwards;
+}
+.new-item:hover .product-view-button p {
+  top: 50%;
 }
 .product-info {
   font-size: 15px;
@@ -617,10 +616,10 @@ h3 {
 .checkout-container {
   z-index: 100;
   position: fixed;
-  top: 100px;
+  top: 200px;
   left: 100%;
-  bottom: 100px;
-  width: 50%;
+  bottom: 200px;
+  width: 40%;
   padding: 10px 0;
   padding-top: 30px;
   overflow-y: auto;
@@ -629,7 +628,7 @@ h3 {
   transition: 0.5s cubic-bezier(0.6, 0, 0.2, 1);
 }
 .checkout-container.active {
-  left: 25%;
+  left: 30%;
 }
 .checkout-container .section-nav {
   margin-bottom: 0;
