@@ -34,4 +34,6 @@ func PublicRoutes(a *fiber.App) {
 	// a.Post("/explore", controllers.RenderProducts)
 
 	api.Post("/client", controllers.CreateProfile)
+
+	a.Get("/admin", controllers.RenderAdminPanel)
 }

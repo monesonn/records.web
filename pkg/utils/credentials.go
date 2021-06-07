@@ -21,6 +21,7 @@ func GetCredentialsByRole(role string) ([]string, error) {
 			repository.RecordUpdateCredential,
 			repository.RecordDeleteCredential,
 		}
+		fmt.Println("Admin")
 	case repository.ModeratorRoleName:
 		// Moderator credentials (only book creation and update).
 		credentials = []string{
@@ -32,6 +33,7 @@ func GetCredentialsByRole(role string) ([]string, error) {
 		credentials = []string{
 			repository.RecordCreateCredential,
 		}
+		fmt.Println("User")
 	default:
 		// Return error message.
 		return nil, fmt.Errorf("role '%v' does not exist", role)

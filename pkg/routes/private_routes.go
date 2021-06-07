@@ -28,7 +28,8 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
 	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
-	a.Get("/admin", middleware.JWTProtected(), controllers.RenderAdminPanel)
+	route.Post("/order", middleware.JWTProtected(), controllers.CreateOrder)
+	route.Post("/review", middleware.JWTProtected(), controllers.CreateReview)
 
 	// Routes for PUT method:
 	// route.Put("/genre", controllers.UpdateGenre)
