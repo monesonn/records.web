@@ -31,24 +31,53 @@
             </div>
         </div>
       </div>
-            <div :class="['profile', loginStatus?'active':'']">
+        <div :class="['profile', loginStatus?'active':'']">
             <div class="abs-center">
-            <div class="avatar-upload">
-            <div class="avatar-edit">
-                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
-                <label for="imageUpload"></label>
+                <md-avatar class="md-avatar-icon md-large">
+                    <md-ripple>{{ profile.initials }}</md-ripple>
+                </md-avatar>
+                <br></br>
+                <h2>Профіль<md-button @click="editStatus = !editStatus" class="md-icon-button md-dense md-primary"><md-icon>edit</md-icon></md-button></h2>
+                <div v-if="editStatus === false">
+                    <p><md-icon>account_circle</md-icon>  {{ profile.fname }} {{ profile.lname }} </p>
+                    <p><md-icon>contacts</md-icon>  {{ profile.username }} </p>
+                    <p><md-icon>mail</md-icon>  {{ profile.email }}</p>
+                    <p><md-icon>phone</md-icon>  {{ profile.telno}}</p>
+                    <p><md-icon>date_range</md-icon>  {{ profile.date }}</p>
+                </div>
+                <div v-else>
+                    <md-field>
+                        <label>Ім’я</label>
+                        <md-input v-model="profile.fname" type="text"></md-input>
+                    </md-field>
+                    <md-field>
+                        <label>Прізвище</label>
+                        <md-input v-model="profile.lname" type="text"></md-input>
+                    </md-field>
+                    <md-field>
+                        <label>Псевдонім</label>
+                        <md-input v-model="profile.username" type="text"></md-input>
+                    </md-field>
+                    <md-field>
+                        <label>Пошта</label>
+                        <md-input v-model="profile.email" type="text"></md-input>
+                    </md-field>
+                    <md-field>
+                        <label>Телефон</label>
+                        <md-input v-model="profile.telno" type="text"></md-input>
+                    </md-field>
+                </div>
+                    <md-divider></md-divider>
+                    <br></br>
+                    <h2 style="font-size:18px;">Мої замовлення:</h2>
+                    <div v-if="order === null">
+                        <p>Немає замовлень.</p>
+                    </div>
+                    <div v-else>
+                         {{ order }}
+                    </div>
+             <button @click="signOut()" class="btn btn-outline-danger" style="margin-top: 5%; width:200px;">Вийти</button>
             </div>
-            <div class="avatar-preview">
-                <div id="imagePreview" style="background-image: url(https://i.pravatar.cc/500?img=68);">
-            </div>
-            </div>
-            <br></br>
-            <h2>Профіль</h2>
-            <h4>Ім'я: {{ profile.fname }}<h4>
-            <h4>Прізвище: {{ profile.lname }}<h4>
-            <button @click="signOut()" class="btn btn-outline-danger" style="width:200px;">Вийти</button>
-            </div>
-        </div>
       </div>
       <div :class="['rela-block', 'page-container', menuOpen?'shifted':'']">
         <div :class="['rela-block', 'nav-bar']">
@@ -99,10 +128,7 @@
         <div :class="['cart', cartOpen?'active':'']">
             <div class="abs-center">
                 <div v-if="cart.length === 0">
-                    <md-icon class="md-size-4x" style="right:50%;transform: translateX(50%)">add_shopping_cart</md-icon>
-                    <br></br>
-                    <h4>Це ваш кошик</h4>
-                    <p>Але здається він порожній. <i class="bi bi-emoji-wink"></i></p>
+                    <h2 style="font-size:24px">Це ваш кошик, але здається він порожній. <i class="bi bi-emoji-wink"></i></h2>
                 </div>
                 <div v-else>
                 <h2 style="left:50%; text-align:center;">Кошик</h2>
@@ -143,12 +169,13 @@
                 <br></br>
                 <div class="left">
                     <div v-for="(item, index) in cart" class="rela-block">
-                        <h2 style="font-size:16px">{{ index+1 }}. {{ item.artist }} - {{ item.name }}</h2>
+                        <h2 style="font-size:16px">{{ index+1 }}. {{ item.artist }} - {{ item.name }} ( Кількість: {{ item.qty }}, Медіум: {{ item.medium }} )</h2>
                     </div>
                 </div>
             </div>
             </div>
-            <h2 style="bottom: 5%; right: 5%; position: absolute;">Усього: {{ total }}</h2>
+                <h2 style="bottom: 10px; position: absolute; left: 5%">Усього: {{ total }}₴</h2>
+                <button @click="createOrder()" class="btn btn-outline-success btn-lg" style="bottom: 5%; position: absolute; right: 5%;">Підтвердити</button>
         </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">
@@ -189,12 +216,13 @@
           <div class="rela-block gutter-container">
             <div class="rela-block section-nav">
               <h2 class="left">
-                  Усі звукозаписи<span v-show="currentGenre !== 'Усі'"
+                  Усі звукозаписи<span v-show="currentGenre !== ''"
                   >/{{ currentGenre }}</span
                 >
               </h2>
               <md-button class="right md-icon-button" @click="filterOpen = !filterOpen; menuOpen = false; searchOpen = false; cartOpen = false;">
-                      <md-icon class="right">view_list</md-icon>
+                      <!-- <label>Тицяй</label> -->
+                      <md-icon class="right">filter_list</md-icon>
               </md-button>
             </div>
             <div class="rela-block product-item-container">
@@ -219,22 +247,24 @@
             </div>
           </div>
         </div>
-        <div :class="['cart', filterOpen?'active':'']">
+        <div :class="['filter', filterOpen?'active':'']">
             <div class="abs-center">
               <h2>Фільтр</h2>
               <br></br>
               <md-autocomplete class="md-size-xsmall" v-model="currentGenre" :md-options="genre">
-                  <label>Жанр</label>
+                    <label><md-icon>music_note</md-icon> Жанр</label>
               </md-autocomplete>
-              <md-field>
-                <label for="age">Рік</label>
-                <md-input type="number" autocomplete="age" v-model="currentYear"/>
-              </md-field>
-              <md-autocomplete class="md-size-xsmall" v-model="currentCountry" :md-options="genre">
-                  <label>Країна</label>
+              <md-autocomplete class="md-size-xsmall" v-model="currentYear" :md-options="year">
+                  <label><md-icon>date_range</md-icon> Рік</label>
               </md-autocomplete>
-              <md-autocomplete class="md-size-xsmall" v-model="currentLabel" :md-options="genre">
-                  <label>Лейбл</label>
+              <md-autocomplete class="md-size-xsmall" v-model="currentCountry" :md-options="country">
+                  <label><md-icon>flag</md-icon> Країна</label>
+              </md-autocomplete>
+              <md-autocomplete class="md-size-xsmall" v-model="currentLabel" :md-options="label">
+                  <label><md-icon>label_important</md-icon> Лейбл</label>
+              </md-autocomplete>
+               <md-autocomplete class="md-size-xsmall" v-model="currentMedium" :md-options="medium">
+                  <label><md-icon>headphones</md-icon> Носій</label>
               </md-autocomplete>
             </div>
         </div>
@@ -291,10 +321,24 @@
                 ></div>
               </div>
               <div class="rela-block info-row">
-                <div class="rela-inline left">Опис:</div>
+                <div class="rela-inline left">Лейбл:</div>
                 <div
                   class="rela-block text"
-                  v-html="viewedProduct.desc||'Немає опису'"
+                  v-html="viewedProduct.label.String ||'Немає лейблу'"
+                ></div>
+              </div>
+              <div class="rela-block info-row">
+                  <div class="rela-inline left">Країна:</div>
+                <div
+                  class="rela-block text"
+                  v-html="viewedProduct.country ||'Немає країни'"
+                ></div>
+              </div>
+              <div class="rela-block info-row">
+                  <div class="rela-inline left">Носій:</div>
+                <div
+                  class="rela-block text"
+                  v-html="viewedProduct.medium ||'Немає носія'"
                 ></div>
               </div>
               <div class="rela-block info-row">
@@ -304,20 +348,31 @@
                   v-html="viewedProduct.rate||'Немає рейтингу'"
                 ></div>
               </div>
+              <div class="rela-block info-row">
+                <div class="rela-inline left">Опис:</div>
+                <div
+                  class="rela-block text"
+                  v-html="viewedProduct.desc||'Немає опису'"
+                ></div>
+              </div>
             </div>
           </div>
           <div class="rela-block pv-container">
               <h2>Коментарі</h2>
+              <md-list>
+                    <comment-comp v-for="(item,index) in comments" :info="item">
+                    </comment-comp>
+              </md-list>
+              <md-divider></md-divider>
               <div v-if="loginStatus === true">
-                  <h4>Ваш коментар</h4>
+                  <br></br>
+                  <h5>Ваш коментар</h5>
                   <md-field>
-                      <label>Textarea</label>
-                      <md-textarea v-model="textarea"></md-textarea>
+                      <label>Поле для коментару</label>
+                      <md-textarea v-model="comment" md-counter="80"></md-textarea>
                  </md-field>
-                 <button @click="addComment()" class="btn btn-outline-success right" style="width:200px; margin-top: -1.5%">Додати <i class="bi bi-chat-dots"></i></button>
+                 <md-button @click="addComment()" class="md-primary right" style="margin-top: -1.5%">Додати <i class="bi bi-chat-dots"></i></md-button>
              </div>
-              <comment-comp v-for="(item,index) in comments" :info="item">
-              </comment-comp>
           </div>
           <div class="rela-block pv-container">
             <h2>Пов’язані товари</h2>
@@ -355,23 +410,23 @@
         </div>
       </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" charset="utf-8"></script>
-    <script charset="utf-8">
-        function readURL(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            $('#imagePreview').css('background-image', 'url('+e.target.result +')');
-            $('#imagePreview').hide();
-            $('#imagePreview').fadeIn(650);
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-$("#imageUpload").change(function() {
-    readURL(this);
-});
-    </script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" charset="utf-8"></script> -->
+    <!-- <script charset="utf-8"> -->
+    <!--     function readURL(input) { -->
+    <!-- if (input.files && input.files[0]) { -->
+    <!--     var reader = new FileReader(); -->
+    <!--     reader.onload = function(e) { -->
+    <!--         $('#imagePreview').css('background-image', 'url('+e.target.result +')'); -->
+    <!--         $('#imagePreview').hide(); -->
+    <!--         $('#imagePreview').fadeIn(650); -->
+    <!--     } -->
+    <!--     reader.readAsDataURL(input.files[0]); -->
+    <!-- } -->
+<!-- } -->
+<!-- $("#imageUpload").change(function() { -->
+    <!-- readURL(this); -->
+<!-- }); -->
+    <!-- </script> -->
     <script>
         const products = [[.product]]
     </script>

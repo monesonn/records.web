@@ -3,9 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Admin</title>
+    <title>Адмін</title>
+    <link rel="icon" type="image/ico" href="/favicon/vinyl.ico" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700,400italic|Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/vue-material/dist/vue-material.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/vue-material/dist/theme/default.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="/css/explore.css"
+      type="text/css"
+      media="screen"
+      title="no title"
+      charset="utf-8"
+    />
+    <link
+      rel="stylesheet"
+      href="/css/admin.css"
+      type="text/css"
+      media="screen"
+      title="no title"
+      charset="utf-8"
+    />
   </head>
   <body>
-    This is an admin panel.
+    <div id="app">
+      <div :class="['rela-block', 'page-container']">
+        <div class="abs-center">
+          <h2>ЦІЛКОМ СЕКРЕТНО</h2>
+          <div class="m-4">
+            <login-comp></login-comp>
+          </div>
+          <small>Обережно! Виключно для адміністраторів.</small>
+        </div>
+      </div>
+      <div :class="['page-container',isLogin?'active':'']">
+        <div class="container-lg">
+          <div :class="['rela-block', 'nav-bar']">
+            <div
+              :class="['left', 'ui-icon', 'menu-button', menuOpen?'active':'']"
+              @click="menuOpen = !menuOpen;"
+            >
+              <svg viewbox="0 0 40 50" class="button-svg">
+                <path d="M 7 15 L 33 15" />
+                <path d="M 7 25 L 33 25" />
+                <path d="M 7 35 L 33 35" />
+              </svg>
+            </div>
+          </div>
+          <h2>Welcome back!</h2>
+        </div>
+      </div>
+      <div :class="['cart', menuOpen?'active':'']">
+                    <h2>Hello</h2>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/libraries/vuelidate/dist/vuelidate.min.js"></script>
+    <script src="/js/libraries/vuelidate/dist/validators.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material"></script>
+    <script src="https://unpkg.com/vuetify"></script>
+    <script src="/js/admin.js" charset="utf-8"></script>
   </body>
 </html>
