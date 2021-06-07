@@ -214,10 +214,16 @@ func UserSignIn(c *fiber.Ctx) error {
 		})
 	}
 
+	isAdmin := false
+	if foundedUser.UserRole == "Admin" {
+		isAdmin = true
+	}
+
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error": false,
 		"msg":   nil,
+		"admin": isAdmin,
 		"tokens": fiber.Map{
 			"access":  tokens.Access,
 			"refresh": tokens.Refresh,

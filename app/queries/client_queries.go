@@ -49,12 +49,12 @@ func (q *RecordsQueries) GetUser(username string) (models.Client, error) {
 	return client, nil
 }
 
-func (q *RecordsQueries) CreateProfile(c *models.Profile) error {
+func (q *RecordsQueries) CreateProfile(p *models.Profile) error {
 	// Define query string.
 	query := `INSERT INTO profile(user_id, first_name,last_name,gender,birthday) VALUES ($1, $2, $3, $4, $5)`
 
 	// Send query to database.
-	_, err := q.Exec(query, c.ID, c.FirstName, c.LastName, c.Gender, c.Birthday)
+	_, err := q.Exec(query, p.ID, p.FirstName, p.LastName, p.Gender, p.Birthday)
 	if err != nil {
 		// Return only error.
 		return err
@@ -66,10 +66,40 @@ func (q *RecordsQueries) CreateProfile(c *models.Profile) error {
 
 func (q *RecordsQueries) GetReview(id int) ([]models.Review, error) {
 	reviews := []models.Review{}
-	query := `SELECT * FROM review where view_product_id = $1`
+	query := `SELECT * FROM review where product_id = $1`
 	err := q.Select(&reviews, query, id)
 	if err != nil {
 		return reviews, err
 	}
 	return reviews, nil
+}
+
+func (q *RecordsQueries) CreateOrder(o *models.Orders) error {
+	// Define query string.
+	query := `INSERT INTO orders(user_id, total_cost) VALUES ($1, $2)`
+
+	// Send query to database.
+	_, err := q.Exec(query, o.UserID, o.TotalCost)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
+
+func (q *RecordsQueries) CreateReview(r *models.Review) error {
+	// Define query string.
+	query := `INSERT INTO review(user_id, product_id, commentary) VALUES ($1, $2, $3)`
+
+	// Send query to database.
+	_, err := q.Exec(query, r.UserID, r.ProductID, r.Comment)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
 }

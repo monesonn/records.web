@@ -36,13 +36,16 @@ type Product struct {
 }
 
 type ProductView struct {
-	ID          int    `db:"id" json:"id"`
-	Album       string `db:"album" json:"name"`
-	Artist      string `db:"artist" json:"artist"`
-	Description string `db:"description" json:"desc"`
-	Price       int    `db:"price" json:"cost"`
-	Genre       string `db:"genre" json:"genre"`
-	Cover       string `db:"cover" json:"img"`
-	Year        string `db:"year" json:"date"`
+	ID          int            `db:"id" json:"id"`
+	Album       string         `db:"album" json:"name"`
+	Artist      string         `db:"artist" json:"artist"`
+	Description string         `db:"description" json:"desc"`
+	Price       int            `db:"price" json:"cost"`
+	MediumType  string         `db:"medium" json:"medium"`
+	Country     sql.NullString `db:"country" json:"country"`
+	LabelID     sql.NullString `db:"label" json:"label"`
+	Genre       string         `db:"genre" json:"genre"`
+	Cover       string         `db:"cover" json:"img"`
+	Year        string         `db:"year" json:"date"`
 	// Type        string `db:"type" json:"type"`
 }

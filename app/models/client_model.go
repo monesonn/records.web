@@ -27,9 +27,9 @@ type Profile struct {
 }
 
 type Review struct {
-	ClientID  int    `db:"view_client_id" json:"client_id"`
-	ProductID int    `db:"view_product_id" json:"product_id"`
-	ViewRate  int    `db:"view_rate" json:"rate"`
+	UserID    string `db:"user_id" json:"user_id"`
+	ProductID int    `db:"product_id" json:"product_id"`
+	ViewRate  int    `db:"rate" json:"rate"`
 	ViewDate  string `db:"view_date" json:"date"`
-	Comment   string `db:"comment_" json:"comment"`
+	Comment   string `db:"commentary" json:"comment"`
 }
