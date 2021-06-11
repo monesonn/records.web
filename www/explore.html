@@ -34,7 +34,12 @@
         <div :class="['profile', loginStatus?'active':'']">
             <div class="abs-center">
                 <md-avatar class="md-avatar-icon md-large">
-                    <md-ripple>{{ profile.initials }}</md-ripple>
+                    <div v-if="profile.picture !== null">
+                        <img :src="profile.picture" alt="avatar">
+                    </div>
+                    <div v-else>
+                        <md-ripple>{{ profile.initials }}</md-ripple>
+                    </div>
                 </md-avatar>
                 <br></br>
                 <h2>Профіль<md-button @click="editStatus = !editStatus" class="md-icon-button md-dense md-primary"><md-icon>edit</md-icon></md-button></h2>
@@ -74,7 +79,7 @@
                         <p>Немає замовлень.</p>
                     </div>
                     <div v-else>
-                         {{ order }}
+                        <!-- {{ order_id }} -->
                     </div>
              <button @click="signOut()" class="btn btn-outline-danger" style="margin-top: 5%; width:200px;">Вийти</button>
             </div>
@@ -173,9 +178,10 @@
                     </div>
                 </div>
             </div>
+            <md-progress-bar md-mode="indeterminate" v-if="sending" />
             </div>
                 <h2 style="bottom: 10px; position: absolute; left: 5%">Усього: {{ total }}₴</h2>
-                <button @click="createOrder()" class="btn btn-outline-success btn-lg" style="bottom: 5%; position: absolute; right: 5%;">Підтвердити</button>
+                <button @click="createOrder()" class="btn btn-outline-success btn-lg" style="bottom: 5%; position: absolute; right: 5%;" :disabled="sending">Підтвердити</button>
         </div>
         <div class="rela-block page-section top-section">
           <div class="gutter-container">
@@ -266,9 +272,12 @@
                <md-autocomplete class="md-size-xsmall" v-model="currentMedium" :md-options="medium">
                   <label><md-icon>headphones</md-icon> Носій</label>
               </md-autocomplete>
+              <br></br>
+              <md-button @click="resetFilter()" class="md-primary" style="width:275px">Скинути фільтри
+</md-button>
             </div>
         </div>
-        <div class="rela-block page-section new-section">
+        <div class="rela-block page-section newу {{comment.date}}-section">
           <div class="rela-block gutter-container">
             <div class="rela-block section-nav">
               <h2 class="left">Щось круте тут</h2>
@@ -324,7 +333,7 @@
                 <div class="rela-inline left">Лейбл:</div>
                 <div
                   class="rela-block text"
-                  v-html="viewedProduct.label.String ||'Немає лейблу'"
+                  v-html="viewedProduct.label ||'Немає лейблу'"
                 ></div>
               </div>
               <div class="rela-block info-row">
@@ -360,7 +369,7 @@
           <div class="rela-block pv-container">
               <h2>Коментарі</h2>
               <md-list>
-                    <comment-comp v-for="(item,index) in comments" :info="item">
+                    <comment-comp v-for="(item,index) in comments" :comment="item">
                     </comment-comp>
               </md-list>
               <md-divider></md-divider>

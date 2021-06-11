@@ -419,30 +419,34 @@ Vue.component("product-comp", {
     },
     toggle: function () {
       app.cartOpen = this.toggle;
+      app.menuOpen = false;
     },
   },
 });
 
 Vue.component("comment-comp", {
   template: `
-    <div>
+    <md-list class="md-double-line">
         <md-list-item>
             <md-avatar>
-                <img src="https://placeimg.com/40/40/people/6" alt="People">
+                <img :src="comment.img" alt="">
             </md-avatar>
-
-            <span class="md-list-item-text">{{info.comment}}</span>
+            <div class="md-list-item-text">
+                <span>{{comment.full_name}} </span>
+                <span>пише "{{comment.text}}"</span>
+            </div>
         </md-list-item>
-    </div>`,
+    </md-list>`,
   props: {
-    info: {
+    comment: {
       type: Object,
       default: {
-        client_id: 0,
+        user_id: 0,
         product_id: 0,
-        rate: 0,
+        img: null,
+        full_name: null,
         date: null,
-        comment: null,
+        text: null,
       },
     },
   },
@@ -464,6 +468,7 @@ var app = new Vue({
     checkoutOpen: false,
     loginStatus: false,
     editStatus: false,
+    sending: false,
     currentViewedProduct: 0, // Product's id
     viewedProduct: {},
     searchInput: "",
@@ -744,14 +749,19 @@ var app = new Vue({
       this.viewedProduct = app.products.filter(function (el) {
         return el.id === app.currentViewedProduct;
       })[0];
+      this.viewedProduct.country = this.viewedProduct.country.String;
+      this.viewedProduct.label = this.viewedProduct.label.String;
     },
     viewProduct: function (id) {
       this.currentViewedProduct = id;
       app.updateViewedProduct();
       this.productViewOpen = true;
-      axios.get(`/api/review/${id}`).then((res) => {
-        this.comments = res.data.review;
+      axios.get(`/api/comment/${id}`).then((res) => {
+        this.comments = res.data.comments;
       });
+      // axios.get(`/api/user/${this.comments.user_id}`).then((res) => {
+      // this.comments = res.data.review;
+      // });
     },
     incrementQty: function (index) {
       this.total += this.cart[index].cost;
@@ -778,14 +788,15 @@ var app = new Vue({
         .then((res) => {})
         .catch((err) => {
           app.err = err;
+          this.loginStatus = !this.loginStatus;
+          localStorage.access = null;
+          localStorage.refresh = null;
+          localStorage.uuid = null;
+          this.profile = [];
         });
-      this.loginStatus = !this.loginStatus;
-      localStorage.access = null;
-      localStorage.refresh = null;
-      localStorage.uuid = null;
-      this.profile = [];
     },
     createOrder: function () {
+      this.sending = true;
       this.order = this.cart;
       axios
         .post(
@@ -800,12 +811,54 @@ var app = new Vue({
             },
           }
         )
-        .then((res) => {
-          console.log("Ok");
-        })
+        .then((res) => {})
         .catch((err) => {
           app.err = err;
         });
+      window.setTimeout(() => {
+        axios
+          .get(`/api/order/${localStorage.uuid}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.access}`,
+            },
+          })
+          .then((res) => {
+            localStorage.order_id = res.data.order.order_id;
+          })
+          .catch((err) => {
+            app.err = err;
+          });
+      }, 1000);
+      window.setTimeout(() => {
+        for (var i in this.order) {
+          axios
+            .post(
+              "/api/order/list",
+              {
+                item_id: Number(i + 1),
+                product_id: this.order[i].id,
+                order_id: Number(localStorage.order_id),
+                item_qty: this.order[i].qty,
+                item_cost: this.order[i].cost,
+                item_status: "Delivered",
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.access}`,
+                },
+              }
+            )
+            .then((res) => {
+              this.sending = false;
+              this.checkoutOpen = false;
+              this.cart = [];
+              this.total = 0;
+            })
+            .catch((err) => {
+              app.err = err;
+            });
+        }
+      }, 5000);
     },
     addComment: function () {
       axios
@@ -828,6 +881,14 @@ var app = new Vue({
         .catch((err) => {
           app.err = err;
         });
+    },
+    resetFilter: function () {
+      this.currentYear = "";
+      this.currentGenre = "";
+      this.currentLabel = "";
+      this.currentMedium = "";
+      this.currentCountry = "";
+      this.currentLabel = "";
     },
     // Counter: function (array) {
     //   array.forEach((item) => (item = (this[val] || 0) + 1));
