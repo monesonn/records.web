@@ -16,7 +16,8 @@ func PrivateRoutes(a *fiber.App) {
 	// Routes for GET method:
 	// route.Get("/clients", middleware.JWTProtected(), controllers.GetClients)
 
-	route.Get("/me/uuid/:uuid", middleware.JWTProtected(), controllers.GetClientByUUID)
+	route.Get("/user/uuid/:uuid", controllers.GetClientByUUID)
+	// route.Get("/user/uuid/:uuid", middleware.JWTProtected(), controllers.GetClientByUUID)
 	route.Get("/me/email/:email", middleware.JWTProtected(), controllers.GetClientByEmail)
 	route.Get("/user/:username", controllers.GetUser)
 
@@ -29,6 +30,8 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
 	route.Post("/order", middleware.JWTProtected(), controllers.CreateOrder)
+	route.Get("/order/:uuid", middleware.JWTProtected(), controllers.GetOrderByUUID)
+	route.Post("/order/list", middleware.JWTProtected(), controllers.CreateOrderList)
 	route.Post("/review", middleware.JWTProtected(), controllers.CreateReview)
 
 	// Routes for PUT method:
