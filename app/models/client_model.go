@@ -33,3 +33,12 @@ type Review struct {
 	ViewDate  string `db:"view_date" json:"date"`
 	Comment   string `db:"commentary" json:"comment"`
 }
+
+type Comment struct {
+	ProductID int    `db:"product_id" json:"product_id"`
+	UserID    string `db:"user_id" json:"user_Id"`
+	Comment   string `db:"commentary" json:"text"`
+	Picture   string `db:"picture" json:"img"`
+	FullName  string `db:"full_name" json:"full_name"`
+	Date      string `db:"date" json:"date"`
+}

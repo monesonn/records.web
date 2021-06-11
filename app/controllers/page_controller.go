@@ -28,6 +28,7 @@ func RenderProducts(c *fiber.Ctx) error {
 			"err":     err.Error(),
 		})
 	}
+
 	return c.Render("explore", fiber.Map{
 		"error":   false,
 		"msg":     nil,

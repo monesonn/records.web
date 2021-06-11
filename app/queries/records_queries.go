@@ -14,7 +14,6 @@ type RecordsQueries struct {
 }
 
 func (q *RecordsQueries) GetGenres() ([]models.Genre, error) {
-	// Define review variable.
 	genres := []models.Genre{}
 
 	query := `SELECT * FROM genre`
@@ -197,7 +196,6 @@ func (q *RecordsQueries) CreateRecord(r *models.Record) error {
 }
 
 func (q *RecordsQueries) GetProducts() ([]models.ProductView, error) {
-	// Define review variable.
 	products := []models.ProductView{}
 
 	query := `SELECT * FROM records_view`
